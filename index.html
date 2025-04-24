@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rice_Cart</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="./src/css/order_form/order_form.css">
+</head>
+<body>
+    <section class="bg-light">
+        <div class="container">
+            <div class="form-container">
+                <h4 class="text-center mb-4">Orders Management</h4>
+                <form id="submit-to-google-sheet" name="submit-to-google-sheet">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input class="form-control" type="text" name="Name" id="name" placeholder="Name" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number:</label>
+                        <input class="form-control" type="tel" name="Contact No" id="mobile" placeholder="Mobile Number"
+                            required maxlength="10" pattern="[0-9]{10}" title="Enter a valid 10-digit mobile number" />
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input class="form-control" type="text" name="Address" id="address" placeholder="Address"
+                            required />
+                    </div>
+                    <!-- Hidden fields for geolocation -->
+                    <input type="hidden" name="latitude" id="latitude" />
+                    <input type="hidden" name="longitude" id="longitude" />
+                    <input type="hidden" name="GPS Location" id="mapsUrl" />
+                    <div class="form-location">
+                        <button type="button" class="btn btn-secondary btn-block mb-2 location-btn" onclick="getLocation()">
+                            Get My Location<i class="fa-solid fa-location-dot"></i>
+                        </button>
+                    </div>
+                    <div class="form-group form-check">
+                        <input class="form-check-input" type="checkbox" id="ex" required />
+                        <label class="form-check-label" for="ex">
+                            I have read and agree to the Terms of Service and Privacy Policy.
+                        </label>
+                    </div>
+    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div id="loader" style="display: none; text-align: center; margin-top: 10px;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Submitting...</span>
+            </div>
+          </div>
+    </section>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+<script src="./src/js/order_form/order_form.js"></script>
+
+</html>

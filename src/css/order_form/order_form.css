@@ -1,0 +1,58 @@
+:root {
+
+    --font-family: 'Arial', sans-serif;
+    --font-size: 16px;
+    --font-weight: 400;
+    --font-size-large: 20px;   
+    --font-weight-bold: 700;
+    --font-size-small: 14px;
+    --font-weight-light: 300;
+    --font-size-xlarge: 24px;
+    --font-weight-xlarge: 800;
+    --font-size-xxlarge: 28px;
+    --font-weight-xxlarge: 900;
+    --line-height: 1.5;
+    --border-radius: 5px;
+    --border: 1px solid #ccc;
+    --padding: 10px;
+    --margin: 10px; 
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --text-color: #333;
+    --background-color: #f4f4f4;
+}
+
+.bg-light{
+    .form-container {
+        border-radius:var(--padding);
+        max-width: 500px;
+        margin: auto;
+        margin-top: 50px;
+        padding: 20px;
+        box-shadow: 0 0 10px var(--text-color);
+        background-color: var(--background-color);
+    }
+    
+    .form-location {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+    
+        .location-btn {
+            max-width: 80%;
+        }
+    
+        .fa-location-dot {
+            margin-left: 5px;
+        }
+    }
+    .sr-only{
+        font-size: var(--font-size);
+        font-weight: var(--font-weight-bold);
+        color:var(--text-color);
+    }
+    .form-check-label{
+        font-size: var(--font-size-small);
+    }
+}
