@@ -1,0 +1,38 @@
+:root{
+        /*colors*/
+    --primary-color: #7BB661;
+    --Accent-Yellow:#FFD700;
+    --Dark-Brown:#5C4033;
+    --Main-Background:#FFFDF7;
+    --Section-Background:#F5F5DC;
+    --Primary-Text:#333333;
+    --Secondary-Text:#4A4A4A;
+    --Tertiary-Text:#7D7D7D;
+    --Link-Color:#007BFF;
+    --Link-Hover-Color:#0056b3;
+    --Soft-Border:#E0E0E0;
+    --Soft-Shadow:0 2px 4px rgba(0, 0, 0, 0.1);
+    --color-white:#FFFFFF;
+    --color-black:#000000;
+    
+    /*fonts*/
+    --font-family-body: 'Arial', sans-serif;
+    --font-size-xxl:24px;
+    --font-size-xml: 20px;
+    --font-size-xxxl: 32px;
+    --font-size-xxxl: 40px;
+    --font-size-xxxl: 48px;
+    --font-size-l: 16px;
+    --font-size-m: 14px;
+    --font-size-s: 12px;
+
+    --font-weight-l: 400;
+    --font-weight-m: 500;
+    --font-weight-s: 600;
+    --font-weight-xxl: 700;
+    --font-weight-xxxl: 800;
+    --font-weight-xxxl: 900;
+    --font-weight-xxxl: 1000;
+    --line-height: 1.5;
+    --border-radius: 5px;
+}
