@@ -1,80 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="src/css/main/settings/navigation.css">
-    <link rel="stylesheet" href="src/css/main/settings/root.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <!-- Primary Meta Tags -->
+<title>Rice Cart - Buy Fresh Rice Online | Best Prices & Fast Delivery</title>
+<meta name="title" content="Rice Cart - Buy Fresh Rice Online | Best Prices & Fast Delivery">
+<meta name="description" content="Shop fresh and high-quality rice varieties at Rice Cart. Best prices, fast cash-on-delivery service, and trusted by thousands of customers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.ricecart.com/">
+<meta property="og:title" content="Rice Cart - Buy Fresh Rice Online | Best Prices & Fast Delivery">
+<meta property="og:description" content="Shop fresh and high-quality rice varieties at Rice Cart. Best prices, fast cash-on-delivery service, and trusted by thousands of customers.">
+<meta property="og:image" content="https://www.ricecart.com/images/og-image.jpg">
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://www.ricecart.com/">
+<meta property="twitter:title" content="Rice Cart - Buy Fresh Rice Online | Best Prices & Fast Delivery">
+<meta property="twitter:description" content="Shop fresh and high-quality rice varieties at Rice Cart. Best prices, fast cash-on-delivery service, and trusted by thousands of customers.">
+<meta property="twitter:image" content="https://www.ricecart.com/images/twitter-card.jpg">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+<!-- Favicon (Optional but good) -->
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="src/css/main/settings/navigation.css">
+  <link rel="stylesheet" href="src/css/main/settings/root.css"  as="style">
 </head>
+
 <body>
-    <section class="nav-container">
-        <nav class="navbar navbar-expand-custom navbar-mainbg">
-            <a class="navbar-brand navbar-logo animated-logo" href="#">
-                Rice<i class="fa-solid fa-wheat-awn wheat-icon"></i><em class="fa-em">Kart</em>
-              </a>              
-            <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars text-white"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ml-auto">
-                    <div class=""><div class="left"></div><div class="right"></div></div>
-                    <li class="nav-item">
-                        <a class="nav-link" href="javascript:void(0);"><i class="fa-solid fa-house"></i>Home</i></a>
-                    </li>
-                    <li class="nav-item active">
-                        <a class="nav-link" href="./src/pages/product.html"><i class="fa-solid fa-bowl-rice"></i>Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./src/pages/about.html"><i class="fa-solid fa-address-card"></i>About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="./src/pages/contact.html"><i class="fa-solid fa-headset"></i>support</a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
+  <section class="nav-container">
+    <nav class="navbar navbar-expand-custom navbar-mainbg">
+      <a class="navbar-brand navbar-logo animated-logo" href="#">
+        Rice<i class="fa-solid fa-wheat-awn wheat-icon"></i><em class="fa-em">Kart</em>
+      </a>
+      <button class="navbar-toggler" type="button" id="menuToggle" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars text-white"></i>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ml-auto">
+          <div class="">
+            <div class="left"></div>
+            <div class="right"></div>
+          </div>
+          <li class="nav-item">
+            <a class="nav-link" href="javascript:void(0);"><i class="fa-solid fa-house"></i>Home</i></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="./src/pages/product.html"><i class="fa-solid fa-bowl-rice"></i>Products</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./src/pages/about.html"><i class="fa-solid fa-address-card"></i>About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./src/pages/orders.html"><i class="fa-solid fa-cart-shopping"></i>Order now</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </section>
+  <main >
+    <section>
+      <div id="dev-banner" style="
+  background-color: #ffcc00;
+  color: #000;
+  text-align: center;
+  padding: 100px 20px;
+  font-weight: bold;
+  top: 0;
+  width: 100%;
+  z-index: 9999;
+  font-family: sans-serif;
+">
+        🚧 This site is under development. Some features may not work perfectly.
+        <div style="text-align: center; margin-top: 10px;">
+          <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif" 
+               alt="Building Website..." 
+               style="max-width: 300px; width: 80%;">
+          <h2 style="margin-top: 20px;">We're Building Something Awesome!</h2>
+        </div>
+      </div>
     </section>
-    <main style="min-height: 100vh;"></main>
-    <section class="footer-container">
-        <footer class="mt-auto fg-bg">
-            <div class="container">
-              <div class="row">
-                <div class="col-md-4 mb-3">
-                  <h5>About Us</h5>
-                  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac ante mollis quam tristique convallis.</p>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <h5>Quick Links</h5>
-                  <ul class="list-unstyled">
-                    <li><a href="#" class="text-decoration-none text-white">Home</a></li>
-                    <li><a href="#" class="text-decoration-none text-white">Services</a></li>
-                    <li><a href="#" class="text-decoration-none text-white">Contact</a></li>
-                  </ul>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <h5>Follow Us</h5>
-                  <ul class="list-inline social-icons">
-                    <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-facebook"></i></a></li>
-                    <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-twitter"></i></a></li>
-                    <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-instagram"></i></a></li>
-                  </ul>
-                </div>
-              </div>
-              <hr class="mb-4">
-              <div class="row">
-                <div class="col-md-12 text-center">
-                  <p>&copy; 2025 Your Company. All rights reserved.</p>
-                </div>
-              </div>
-            </div>
-          </footer>
-    </section>
+  </main>
+  <section class="footer-container">
+    <footer class="mt-auto fg-bg">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <h5>About Us</h5>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac ante mollis quam tristique convallis.
+            </p>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-decoration-none text-white">Home</a></li>
+              <li><a href="#" class="text-decoration-none text-white">Services</a></li>
+              <li><a href="#" class="text-decoration-none text-white">Contact</a></li>
+            </ul>
+          </div>
+          <div class="col-md-4 mb-3">
+            <h5>Follow Us</h5>
+            <ul class="list-inline social-icons">
+              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-facebook"></i></a></li>
+              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-twitter"></i></a></li>
+              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-instagram"></i></a></li>
+            </ul>
+          </div>
+        </div>
+        <hr class="mb-4">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <p>&copy; 2025 Your Company. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </section>
 </body>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="src/js/main/settings/navigation.js"></script>
+
 </html>
