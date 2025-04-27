@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Product</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="../css/main/settings/navigation.css">
@@ -15,14 +15,15 @@
             <a class="navbar-brand navbar-logo animated-logo" href="#">
                 Rice<i class="fa-solid fa-wheat-awn wheat-icon"></i><em class="fa-em">Kart</em>
               </a>              
-            <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars text-white"></i>
-            </button>
+              <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" id="menuToggle">
+                <i class="fas fa-bars text-white"></i> <!-- Start with bars -->
+              </button>
+              
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <div class=""><div class="left"></div><div class="right"></div></div>
                     <li class="nav-item">
-                        <a class="nav-link" href="home.html"><i class="fa-solid fa-house"></i>Home</i></a>
+                        <a class="nav-link" href="/home.html"><i class="fa-solid fa-house"></i>Home</i></a>
                     </li>
                     <li class="nav-item active">
                         <a class="nav-link" href="javascript:void(0);"><i class="fa-solid fa-bowl-rice"></i>Products</a>
@@ -31,13 +32,35 @@
                         <a class="nav-link" href="./about.html"><i class="fa-solid fa-address-card"></i>About Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./contact.html"><i class="fa-solid fa-headset"></i>support</a>
+                        <a class="nav-link" href="./orders.html"><i class="fa-solid fa-cart-shopping"></i>Order now</a>
                     </li>
                 </ul>
             </div>
         </nav>
     </section>
-    <main style="min-height: 100vh;"></main>
+    <main >
+      <section>
+        <div id="dev-banner" style="
+    background-color: #ffcc00;
+    color: #000;
+    text-align: center;
+    padding: 100px 20px;
+    font-weight: bold;
+    top: 0;
+    width: 100%;
+    z-index: 9999;
+    font-family: sans-serif;
+  ">
+          🚧 This site is under development. Some features may not work perfectly.
+          <div style="text-align: center; margin-top: 10px;">
+            <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif" 
+                 alt="Building Website..." 
+                 style="max-width: 300px; width: 80%;">
+            <h2 style="margin-top: 20px;">We're Building Something Awesome!</h2>
+          </div>
+        </div>
+      </section>
+    </main>
     <section class="footer-container">
         <footer class="mt-auto fg-bg">
             <div class="container">

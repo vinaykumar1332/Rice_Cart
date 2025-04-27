@@ -46,3 +46,20 @@ function test(){
     var target = jQuery('#navbarSupportedContent ul li a[href="'+path+'"]');
     target.parent().addClass('active');
   });
+
+  //bars
+  const menuToggle = document.getElementById('menuToggle');
+if (menuToggle) {
+  const menuIcon = menuToggle.querySelector('i');
+  
+  menuToggle.addEventListener('click', () => {
+    // Toggle icon classes
+    if (menuIcon.classList.contains('fa-bars')) {
+      menuIcon.classList.remove('fa-bars');
+      menuIcon.classList.add('fa-xmark'); // Cross icon
+    } else {
+      menuIcon.classList.remove('fa-xmark');
+      menuIcon.classList.add('fa-bars'); // Back to bars
+    }
+  });
+}

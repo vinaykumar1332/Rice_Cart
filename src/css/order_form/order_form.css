@@ -1,36 +1,17 @@
-:root {
-
-    --font-family: 'Arial', sans-serif;
-    --font-size: 16px;
-    --font-weight: 400;
-    --font-size-large: 20px;
-    --font-weight-bold: 700;
-    --font-size-small: 14px;
-    --font-weight-light: 300;
-    --font-size-xlarge: 24px;
-    --font-weight-xlarge: 800;
-    --font-size-xxlarge: 28px;
-    --font-weight-xxlarge: 900;
-    --line-height: 1.5;
-    --border-radius: 5px;
-    --border: 1px solid #ccc;
-    --padding: 10px;
-    --margin: 10px;
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-    --text-color: #333;
-    --background-color: #f4f4f4;
-}
-
+/* Order Form Styles */
 .bg-light {
+    .container-lg{
+        padding-top: 50px;
+        padding-bottom: 50px;
+    }
     .form-container {
-        border-radius: var(--padding);
+        border-radius: var(--padding-s);
         max-width: 500px;
         margin: auto;
         margin-top: 50px;
         padding: 20px;
-        box-shadow: 0 0 10px var(--text-color);
-        background-color: var(--background-color);
+        box-shadow: 0 0 10px var(--color-black);
+        background-color: var(--Main-Background);
     }
 
     .form-location {
@@ -55,7 +36,7 @@
     .sr-only {
         font-size: var(--font-size);
         font-weight: var(--font-weight-bold);
-        color: var(--text-color);
+        color: var(--primary-color);
     }
 
     .form-check-label {
@@ -64,19 +45,20 @@
 
     #loader {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 10px;
         justify-content: center;
         align-items: center;
+        background-color: rgba(0, 0, 0, 0.4);
         .text-primary {
             height: 40px;
             width: 40px;
         }
 
         .loader-msg{
-            font-size: var(--font-size-small);
-            font-weight: var(--font-weight-bold);
-            color: var(--text-color);
+            font-size: var(--font-size-l);
+            font-weight: var(--font-weight-m);
+            color: var(--color-black);
             text-align: center;
         }
     }
