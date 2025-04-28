@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="src/css/main/settings/root.css" as="style">  
     <link rel="stylesheet" href="src/css/main/settings/navigation.css">
+    <link rel="stylesheet" href="src/css/main/pages/product.css">
 </head>
 <body>
     <section class="nav-container">
@@ -39,27 +40,14 @@
         </nav>
     </section>
     <main >
-      <section>
-        <div id="dev-banner" style="
-    background-color: #ffcc00;
-    color: #000;
-    text-align: center;
-    padding: 100px 20px;
-    font-weight: bold;
-    top: 0;
-    width: 100%;
-    z-index: 9999;
-    font-family: sans-serif;
-  ">
-          🚧 This site is under development. Some features may not work perfectly.
-          <div style="text-align: center; margin-top: 10px;">
-            <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif" 
-                 alt="Building Website..." 
-                 style="max-width: 300px; width: 80%;">
-            <h2 style="margin-top: 20px;">We're Building Something Awesome!</h2>
-          </div>
-        </div>
-      </section>
+    <section class="product-cards-main-container container-fluid">
+      <h1>Rice Cart - Select Your Products</h1>
+      <div class="products-container" id="productsContainer">
+        <!-- Product cards will be generated here -->
+      </div>
+  
+      <button id="go-to-dashboard">Next</button>
+    </section>
     </main>
     <section class="footer-container">
         <footer class="mt-auto fg-bg">
@@ -100,4 +88,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="src/js/main/settings/navigation.js"></script>
+<script src="src/js/products/products.js"></script>
 </html>
