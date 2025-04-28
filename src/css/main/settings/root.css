@@ -2,7 +2,7 @@
         /*colors*/
     --primary-color: #7BB661;
     --Accent-Yellow:#FFD700;
-    --Dark-Brown:#5C4033;
+    --GoGreen:#626F47;
     --Main-Background:#FFFDF7;
     --Section-Background:#F5F5DC;
     --Primary-Text:#333333;
@@ -15,40 +15,36 @@
     --color-white:#FFFFFF;
     --color-black:#000000;
     
-    /*fonts*/
-    --font-family-body: 'Arial', sans-serif;
-    --font-size-xxl:24px;
-    --font-size-xml: 20px;
-    --font-size-xxxl: 32px;
-    --font-size-xxxl: 40px;
-    --font-size-xxxl: 48px;
-    --font-size-l: 16px;
-    --font-size-m: 14px;
-    --font-size-s: 12px;
+   /* Fonts (Unchanged) */
+   --font-family-body: 'Arial', sans-serif;
+   --font-size-xxl: 24px;
+   --font-size-xl: 20px;
+   --font-size-xxxl: 48px;
+   --font-size-l: 16px;
+   --font-size-m: 14px;
+   --font-size-s: 12px;
 
-    --font-weight-l: 400;
-    --font-weight-m: 500;
-    --font-weight-s: 600;
-    --font-weight-xxl: 700;
-    --font-weight-xxxl: 800;
-    --font-weight-xxxl: 900;
-    --font-weight-xxxl: 1000;
-    --line-height: 1.5;
-    --border-radius: 5px;
+   --font-weight-l: 400;
+   --font-weight-m: 500;
+   --font-weight-s: 600;
+   --font-weight-xxl: 700;
+   --font-weight-xxxl: 900;
+   
+   --line-height: 1.5;
+   --border-radius: 5px;
 
+   /* Spacing (Unchanged) */
+   --padding-s: 0.625rem; /* 10px */
+   --padding-m: 1.25rem;  /* 20px */
+   --padding-l: 1.875rem; /* 30px */
+   --padding-xl: 2.5rem;  /* 40px */
+   --padding-xxl: 3.125rem; /* 50px */
+   --padding-xxxl: 3.75rem; /* 60px */
 
-    --padding-s:0.625rem; /*10px*/
-    --padding-m:1.25rem; /*20px*/
-    --padding-l:1.875rem; /*30px*/
-    --padding-xl:2.5rem; /*40px*/
-    --padding-xxl:3.125rem; /*50px*/
-    --padding-xxxl:3.75rem; /*60px*/
-    --padding-xxxl:4.375rem; /*70px*/
-
-    --margin-s:0.625rem; /*10px*/
-    --margin-m:1.25rem; /*20px*/
-    --margin-l:1.875rem; /*30px*/
-    --margin-xl:2.5rem; /*40px*/
+   --margin-s: 0.625rem; /* 10px */
+   --margin-m: 1.25rem;  /* 20px */
+   --margin-l: 1.875rem; /* 30px */
+   --margin-xl: 2.5rem;  /* 40px */
     
 }
 

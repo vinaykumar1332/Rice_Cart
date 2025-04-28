@@ -73,7 +73,7 @@ body{
     left: -10px;
   }
     .navbar-mainbg {
-        background-color: var(--Dark-Brown);
+        background-color: var(--GoGreen);
         padding: 0px;
     }
     #navbarSupportedContent {
@@ -214,7 +214,7 @@ body{
 
   .footer-container{
     .fg-bg{
-        background-color: var(--Dark-Brown);
+        background-color: var(--GoGreen);
         padding: 20px 0;
         color: var(--color-white);
         text-align: center;
