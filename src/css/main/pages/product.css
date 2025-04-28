@@ -1,0 +1,117 @@
+.product-cards-main-container {
+    padding: 80px 20px;
+}
+
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* --- Product Grid Container --- */
+  .products-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cards default */
+    gap: 20px;
+  }
+  
+  /* --- Product Card --- */
+  .product-card {
+    background: var(--Section-Background);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .product-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .product-name {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .quantity-select {
+    width: 50%;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  
+  .price-info {
+    margin-bottom: 10px;
+  }
+  
+  .price,
+  .price-per-kg {
+    display: block;
+    font-weight: bold;
+    margin: 5px 0;
+  }
+  
+  .add-to-cart {
+    padding: 10px 15px;
+    background: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .add-to-cart:hover {
+    background: #0056b3;
+  }
+  
+  #go-to-dashboard {
+    display: block;
+    margin: 30px auto 0;
+    padding: 12px 20px;
+    background: green;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  /* --- Responsive Breakpoints --- */
+  
+  /* Tablets (between 768px and 992px) */
+  @media (max-width: 991px) {
+    .products-container {
+      grid-template-columns: repeat(3, 1fr); /* 3 cards */
+    }
+  }
+  
+  /* Small tablets and big mobiles (between 600px and 767px) */
+  @media (max-width: 767px) {
+    .products-container {
+      grid-template-columns: repeat(2, 1fr); /* 2 cards */
+    }
+  }
+  
+  /* Mobile phones (below 600px) */
+  @media (max-width: 599px) {
+    .products-container {
+      grid-template-columns: 1fr; /* 1 card full width */
+    }
+  
+    .product-img {
+      height: auto;
+      object-fit: contain; /* smaller height for mobile */
+    }
+  }
+  
