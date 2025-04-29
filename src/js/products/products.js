@@ -1,121 +1,202 @@
 const productsContainer = document.getElementById('productsContainer');
-const cart = [];
+const checkoutBtn = document.getElementById('go-to-dashboard');
+const dashboardOverlay = document.getElementById('dashboard-overlay');
+const dashboardContent = document.getElementById('dashboard-content');
+const finalCheckoutBtn = document.getElementById('checkout-final');
+const modifyBtn = document.getElementById('modify-cart');
+const closeOverlayBtn = document.getElementById('close-overlay');
 
-// --- Toast Notification Setup ---
-const toastContainer = document.createElement('div');
-toastContainer.id = 'toast-container';
-document.body.appendChild(toastContainer);
+let cart = [];
+let products = [];
+let currentIndex = 0;
+const BATCH_SIZE = 5;
 
-function showToast(message, type = 'success') {
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
-  
-  toastContainer.appendChild(toast);
+// --- Skeleton Loader ---
+function showSkeletons(count = BATCH_SIZE) {
+  for (let i = 0; i < count; i++) {
+    const skeleton = document.createElement('div');
+    skeleton.className = 'skeleton-card';
+    skeleton.innerHTML = `
+      <div class="skeleton-img"></div>
+      <div class="skeleton-info">
+        <div class="skeleton-name"></div>
+        <div class="skeleton-quantity"></div>
+        <div class="skeleton-actions"></div>
+      </div>
+    `;
+    productsContainer.appendChild(skeleton);
+  }
+}
 
-  setTimeout(() => {
-    toast.remove();
-  }, 8000); // remove after 3 seconds
+function removeSkeletons() {
+  document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
 }
 
 // --- Create Product Card ---
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
-  card.dataset.brand = product.brand;
-  card.dataset.basePrice = product.basePrice;
-
-  let quantityCount = 0; // For showing added quantity
+  card.dataset.id = product.id;
 
   card.innerHTML = `
-    <img src="./src/assets/images/${product.imageName}" alt="${product.brand}" class="product-img">
-    <h3 class="product-name">${product.brand}</h3>
-    <select class="quantity-select">
-      <option value="">Select Quantity</option>
-      <option value="5">5 kg</option>
-      <option value="10">10 kg</option>
-      <option value="25">25 kg</option>
-    </select>
-    <div class="price-info">
-      <span class="price">₹0</span>
-      <span class="price-per-kg">₹${product.basePrice} per kg</span>
+    <div class="product-card-image">
+      <img src="./src/assets/images/${product.imageName}" alt="${product.brand}" class="product-img">
     </div>
-    <button class="add-to-cart">Add <span class="count">(0)</span></button>
+    <div class="product-info">
+      <h3 class="product-name">${product.brand}</h3>
+      <label for="quantity-${product.id}"></label>
+      <select id="quantity-${product.id}" class="quantity-select">
+        <option value="">Select kgs</option>
+        <option value="5">5 kg</option>
+        <option value="10">10 kg</option>
+        <option value="25">25 kg</option>
+      </select>
+      <div class="actions">
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+    </div>
   `;
 
-  productsContainer.appendChild(card);
-
   const quantitySelect = card.querySelector('.quantity-select');
-  const priceDisplay = card.querySelector('.price');
-  const addButton = card.querySelector('.add-to-cart');
-  const countSpan = addButton.querySelector('.count');
+  const actions = card.querySelector('.actions');
 
-  // Update price when quantity selected
-  quantitySelect.addEventListener('change', () => {
-    const quantity = parseInt(quantitySelect.value);
-    if (quantity) {
-      const totalPrice = product.basePrice * quantity;
-      priceDisplay.textContent = `₹${totalPrice}`;
-    } else {
-      priceDisplay.textContent = `₹0`;
+  let weightPerBag = 0;
+  let bags = 0;
+
+  function updateCartUI() {
+    actions.innerHTML = `
+      <button class="decrease">-</button>
+      <span class="qty">${bags} bag(s)</span>
+      <button class="increase">+</button>
+    `;
+  }
+
+  function resetCartUI() {
+    actions.innerHTML = `<button class="add-to-cart">Add to Cart</button>`;
+  }
+
+  card.addEventListener('click', (e) => {
+    const selectedWeight = parseInt(quantitySelect.value);
+    const id = product.id;
+
+    if (e.target.classList.contains('add-to-cart')) {
+      if (!selectedWeight) return;
+      weightPerBag = selectedWeight;
+      bags = 1;
+      cart.push({ id, brand: product.brand, weightPerBag, bags, basePrice: product.basePrice });
+      updateCartUI();
+      toggleCheckout();
+    }
+
+    if (e.target.classList.contains('increase')) {
+      bags += 1;
+      const item = cart.find(i => i.id === id);
+      if (item) item.bags = bags;
+      updateCartUI();
+      toggleCheckout();
+    }
+
+    if (e.target.classList.contains('decrease')) {
+      bags -= 1;
+      if (bags <= 0) {
+        cart = cart.filter(i => i.id !== id);
+        bags = 0;
+        resetCartUI();
+      } else {
+        const item = cart.find(i => i.id === id);
+        if (item) item.bags = bags;
+        updateCartUI();
+      }
+      toggleCheckout();
     }
   });
 
-  // Add to cart
-  addButton.addEventListener('click', () => {
-    const quantity = parseInt(quantitySelect.value);
+  productsContainer.appendChild(card);
+}
 
-    if (!quantity) {
-      showToast('Please select a quantity first!', 'error');
-      return;
-    }
+// --- Load Products on Scroll ---
+function loadNextBatch() {
+  const nextBatch = products.slice(currentIndex, currentIndex + BATCH_SIZE);
+  nextBatch.forEach(createProductCard);
+  currentIndex += BATCH_SIZE;
+}
 
-    cart.push({
-      id: product.id,
-      brand: product.brand,
-      quantity,
-      basePrice: product.basePrice,
-      totalPrice: product.basePrice * quantity
-    });
+function handleScroll() {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  if (scrollTop + clientHeight >= scrollHeight - 10) {
+    showSkeletons();
+    setTimeout(() => {
+      removeSkeletons();
+      loadNextBatch();
+    }, 800);
+  }
+}
 
-    quantityCount++;
-    countSpan.textContent = `(${quantityCount})`;
+// --- Dashboard Logic ---
+function updateDashboard() {
+  if (cart.length === 0) {
+    dashboardOverlay.classList.add('hidden');
+    return;
+  }
 
-    showToast(`${product.brand} (${quantity} kg) added to cart!`, 'success');
+  dashboardOverlay.classList.remove('hidden');
+  dashboardContent.innerHTML = '';
+
+  cart.forEach(item => {
+    const row = document.createElement('div');
+    row.innerHTML = `
+      <strong>${item.brand}</strong> - ${item.weightPerBag}kg x ${item.bags} bags @ ₹${item.basePrice}/kg
+    `;
+    dashboardContent.appendChild(row);
   });
 }
 
-// --- Fetch products JSON ---
-fetch('./src/json/product.json')
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(productsData => {
-    if (!Array.isArray(productsData)) {
-      throw new Error('Invalid products data format');
-    }
-    productsData.forEach(product => {
-      if (product.brand && product.basePrice && product.imageName) {
-        createProductCard(product);
-      } else {
-        console.error('Product data missing required fields:', product);
-      }
-    });
-  })
-  .catch(error => {
-    console.error('Error loading products:', error);
-    showToast('Failed to load products.', 'error');
-  });
+function toggleCheckout() {
+  checkoutBtn.style.display = cart.length > 0 ? 'block' : 'none';
+  checkoutBtn.textContent = `Checkout (${cart.length})`;
+}
 
-// --- Handle Next button ---
-document.getElementById('go-to-dashboard').addEventListener('click', () => {
-  if (cart.length === 0) {
-    showToast('Please add at least one product!', 'error');
-    return;
-  }
-  sessionStorage.setItem('cart', JSON.stringify(cart));
-  window.location.href = 'dashboard.html';
+// --- Show Dashboard on Checkout Click ---
+checkoutBtn.addEventListener('click', () => {
+  if (cart.length === 0) return;
+  updateDashboard();
+  checkoutBtn.style.display = 'none';
 });
+
+// --- Modify Cart (Hide Overlay) ---
+modifyBtn.addEventListener('click', () => {
+  dashboardOverlay.classList.add('hidden');
+  toggleCheckout(); // Show checkout again
+});
+
+// --- Close Overlay (X button) ---
+closeOverlayBtn.addEventListener('click', () => {
+  dashboardOverlay.classList.add('hidden');
+  toggleCheckout();
+});
+
+// --- Final Checkout from Dashboard ---
+finalCheckoutBtn.addEventListener('click', () => {
+  const simplifiedCart = cart.map(({ id, brand, weightPerBag, bags, basePrice }) => ({
+    id, brand, weightPerBag, bags, basePrice
+  }));
+  sessionStorage.setItem('cart', JSON.stringify(simplifiedCart));
+  window.location.href = 'orders.html';
+});
+
+// --- Initial Load ---
+fetch('./src/json/product.json')
+  .then(res => res.json())
+  .then(data => {
+    if (!Array.isArray(data)) throw new Error('Invalid data');
+    products = data.filter(p => p.id && p.brand && p.imageName && p.basePrice);
+    showSkeletons();
+    setTimeout(() => {
+      removeSkeletons();
+      loadNextBatch();
+      window.addEventListener('scroll', handleScroll);
+    }, 800);
+  })
+  .catch(err => {
+    console.error('Error loading products:', err);
+  });
