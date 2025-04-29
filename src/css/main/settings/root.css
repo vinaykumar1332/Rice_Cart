@@ -14,6 +14,10 @@
     --Soft-Shadow:0 2px 4px rgba(0, 0, 0, 0.1);
     --color-white:#FFFFFF;
     --color-black:#000000;
+
+    --skeleton-background:#ddd;
+    --skeleton-background-light:#eee;
+
     
    /* Fonts (Unchanged) */
    --font-family-body: 'Arial', sans-serif;
