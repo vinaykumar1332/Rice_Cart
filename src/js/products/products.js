@@ -11,7 +11,6 @@ let products = [];
 let currentIndex = 0;
 const BATCH_SIZE = 5;
 
-// --- Skeleton Loader ---
 function showSkeletons(count = BATCH_SIZE) {
   for (let i = 0; i < count; i++) {
     const skeleton = document.createElement('div');
@@ -32,7 +31,6 @@ function removeSkeletons() {
   document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
 }
 
-// --- Create Product Card ---
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
@@ -45,7 +43,6 @@ function createProductCard(product) {
     <div class="product-info">
       <h3 class="product-name">${product.brand}</h3>
       <p class="product-bag-price">Select weight to see price</p>
-      <label for="quantity-${product.id}"></label>
       <select id="quantity-${product.id}" class="quantity-select">
         <option value="">Select kgs</option>
         <option value="5">5 kg</option>
@@ -62,22 +59,6 @@ function createProductCard(product) {
   const bagPriceText = card.querySelector('.product-bag-price');
   const actions = card.querySelector('.actions');
 
-  let weightPerBag = 0;
-  let bags = 0;
-
-  function updateCartUI() {
-    actions.innerHTML = `
-      <button class="decrease">-</button>
-      <span class="qty">${bags} bag(s)</span>
-      <button class="increase">+</button>
-    `;
-  }
-
-  function resetCartUI() {
-    actions.innerHTML = `<button class="add-to-cart">Add to Cart</button>`;
-  }
-
-  // 🟡 Update price per bag when selecting weight
   quantitySelect.addEventListener('change', () => {
     const selectedWeight = parseInt(quantitySelect.value);
     if (!selectedWeight) {
@@ -94,41 +75,57 @@ function createProductCard(product) {
 
     if (e.target.classList.contains('add-to-cart')) {
       if (!selectedWeight) return;
-      weightPerBag = selectedWeight;
-      bags = 1;
-      cart.push({ id, brand: product.brand, weightPerBag, bags, basePrice: product.basePrice });
+      const existing = cart.find(i => i.id === id && i.weightPerBag === selectedWeight);
+      if (!existing) {
+        cart.push({ id, brand: product.brand, weightPerBag: selectedWeight, bags: 1, basePrice: product.basePrice });
+      } else {
+        existing.bags++;
+      }
       updateCartUI();
       toggleCheckout();
+      updateDashboard();
     }
 
     if (e.target.classList.contains('increase')) {
-      bags += 1;
-      const item = cart.find(i => i.id === id);
-      if (item) item.bags = bags;
-      updateCartUI();
-      toggleCheckout();
+      const item = cart.find(i => i.id === id && i.weightPerBag === selectedWeight);
+      if (item) {
+        item.bags++;
+        updateCartUI();
+        toggleCheckout();
+        updateDashboard();
+      }
     }
 
     if (e.target.classList.contains('decrease')) {
-      bags -= 1;
-      if (bags <= 0) {
-        cart = cart.filter(i => i.id !== id);
-        bags = 0;
-        resetCartUI();
-      } else {
-        const item = cart.find(i => i.id === id);
-        if (item) item.bags = bags;
-        updateCartUI();
+      const itemIndex = cart.findIndex(i => i.id === id && i.weightPerBag === selectedWeight);
+      if (itemIndex !== -1) {
+        cart[itemIndex].bags--;
+        if (cart[itemIndex].bags <= 0) {
+          cart.splice(itemIndex, 1);
+          actions.innerHTML = `<button class="add-to-cart">Add to Cart</button>`;
+        } else {
+          updateCartUI();
+        }
+        toggleCheckout();
+        updateDashboard();
       }
-      toggleCheckout();
+    }
+
+    function updateCartUI() {
+      const item = cart.find(i => i.id === id && i.weightPerBag === selectedWeight);
+      if (item) {
+        actions.innerHTML = `
+          <button class="decrease">-</button>
+          <span class="qty">${item.bags} bag(s)</span>
+          <button class="increase">+</button>
+        `;
+      }
     }
   });
 
   productsContainer.appendChild(card);
 }
 
-
-// --- Load Products on Scroll ---
 function loadNextBatch() {
   const nextBatch = products.slice(currentIndex, currentIndex + BATCH_SIZE);
   nextBatch.forEach(createProductCard);
@@ -146,7 +143,6 @@ function handleScroll() {
   }
 }
 
-// --- Dashboard Logic ---
 function updateDashboard() {
   if (cart.length === 0) {
     dashboardOverlay.classList.add('hidden');
@@ -154,15 +150,47 @@ function updateDashboard() {
   }
 
   dashboardOverlay.classList.remove('hidden');
-  dashboardContent.innerHTML = '';
+
+  dashboardContent.innerHTML = `
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Weight/Bag</th>
+          <th>Bags</th>
+          <th>₹/kg</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4"><strong>Total</strong></td>
+          <td id="total-price"><strong>₹0</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  `;
+
+  const tbody = dashboardContent.querySelector('tbody');
+  let total = 0;
 
   cart.forEach(item => {
-    const row = document.createElement('div');
+    const subtotal = item.basePrice * item.weightPerBag * item.bags;
+    total += subtotal;
+
+    const row = document.createElement('tr');
     row.innerHTML = `
-      <strong>${item.brand}</strong> - ${item.weightPerBag}kg x ${item.bags} bags @ ₹${item.basePrice}/kg
+      <td>${item.brand}</td>
+      <td>${item.weightPerBag} kg</td>
+      <td>${item.bags}</td>
+      <td>₹${item.basePrice}</td>
+      <td>₹${subtotal}</td>
     `;
-    dashboardContent.appendChild(row);
+    tbody.appendChild(row);
   });
+
+  dashboardContent.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
 }
 
 function toggleCheckout() {
@@ -170,35 +198,27 @@ function toggleCheckout() {
   checkoutBtn.textContent = `Checkout (${cart.length})`;
 }
 
-// --- Show Dashboard on Checkout Click ---
 checkoutBtn.addEventListener('click', () => {
   if (cart.length === 0) return;
   updateDashboard();
   checkoutBtn.style.display = 'none';
 });
 
-// --- Modify Cart (Hide Overlay) ---
 modifyBtn.addEventListener('click', () => {
   dashboardOverlay.classList.add('hidden');
-  toggleCheckout(); // Show checkout again
+  toggleCheckout();
 });
 
-// --- Close Overlay (X button) ---
 closeOverlayBtn.addEventListener('click', () => {
   dashboardOverlay.classList.add('hidden');
   toggleCheckout();
 });
 
-// --- Final Checkout from Dashboard ---
 finalCheckoutBtn.addEventListener('click', () => {
-  const simplifiedCart = cart.map(({ id, brand, weightPerBag, bags, basePrice }) => ({
-    id, brand, weightPerBag, bags, basePrice
-  }));
-  sessionStorage.setItem('cart', JSON.stringify(simplifiedCart));
+  sessionStorage.setItem('cart', JSON.stringify(cart));
   window.location.href = 'orders.html';
 });
 
-// --- Initial Load ---
 fetch('./src/json/product.json')
   .then(res => res.json())
   .then(data => {
@@ -215,52 +235,53 @@ fetch('./src/json/product.json')
     console.error('Error loading products:', err);
   });
 
-  function updateDashboard() {
-    if (cart.length === 0) {
-      dashboardOverlay.classList.add('hidden');
-      return;
+  card.addEventListener('click', (e) => {
+    const selectedWeight = parseInt(quantitySelect.value);
+    const id = product.id;
+  
+    if (!selectedWeight) return;
+  
+    let existingItem = cart.find(i => i.id === id && i.weightPerBag === selectedWeight);
+  
+    if (e.target.classList.contains('add-to-cart')) {
+      if (!existingItem) {
+        cart.push({ id, brand: product.brand, weightPerBag: selectedWeight, bags: 1, basePrice: product.basePrice });
+      } else {
+        existingItem.bags += 1;
+      }
+      bags = existingItem ? existingItem.bags : 1;
+      updateCartUI();
+      toggleCheckout();
+      updateDashboard(); // real-time update
     }
   
-    dashboardOverlay.classList.remove('hidden');
+    if (e.target.classList.contains('increase')) {
+      if (existingItem) {
+        existingItem.bags += 1;
+        bags = existingItem.bags;
+      } else {
+        cart.push({ id, brand: product.brand, weightPerBag: selectedWeight, bags: 1, basePrice: product.basePrice });
+        bags = 1;
+      }
+      updateCartUI();
+      toggleCheckout();
+      updateDashboard();
+    }
   
-    dashboardContent.innerHTML = `
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Weight/Bag</th>
-            <th>Bags</th>
-            <th>₹/kg</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4"><strong>Total</strong></td>
-            <td id="total-price"><strong>₹0</strong></td>
-          </tr>
-        </tfoot>
-      </table>
-    `;
+    if (e.target.classList.contains('decrease')) {
+      if (existingItem) {
+        existingItem.bags -= 1;
+        if (existingItem.bags <= 0) {
+          cart = cart.filter(i => !(i.id === id && i.weightPerBag === selectedWeight));
+          bags = 0;
+          resetCartUI();
+        } else {
+          bags = existingItem.bags;
+          updateCartUI();
+        }
+        toggleCheckout();
+        updateDashboard();
+      }
+    }
+  });
   
-    const tbody = dashboardContent.querySelector('tbody');
-    let total = 0;
-  
-    cart.forEach(item => {
-      const subtotal = item.basePrice * item.weightPerBag * item.bags;
-      total += subtotal;
-  
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${item.brand}</td>
-        <td>${item.weightPerBag} kg</td>
-        <td>${item.bags}</td>
-        <td>₹${item.basePrice}</td>
-        <td>₹${subtotal}</td>
-      `;
-      tbody.appendChild(row);
-    });
-  
-    dashboardContent.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
-  }
