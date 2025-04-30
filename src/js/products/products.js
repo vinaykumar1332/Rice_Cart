@@ -44,6 +44,7 @@ function createProductCard(product) {
     </div>
     <div class="product-info">
       <h3 class="product-name">${product.brand}</h3>
+      <p class="product-bag-price">Select weight to see price</p>
       <label for="quantity-${product.id}"></label>
       <select id="quantity-${product.id}" class="quantity-select">
         <option value="">Select kgs</option>
@@ -58,6 +59,7 @@ function createProductCard(product) {
   `;
 
   const quantitySelect = card.querySelector('.quantity-select');
+  const bagPriceText = card.querySelector('.product-bag-price');
   const actions = card.querySelector('.actions');
 
   let weightPerBag = 0;
@@ -74,6 +76,17 @@ function createProductCard(product) {
   function resetCartUI() {
     actions.innerHTML = `<button class="add-to-cart">Add to Cart</button>`;
   }
+
+  // 🟡 Update price per bag when selecting weight
+  quantitySelect.addEventListener('change', () => {
+    const selectedWeight = parseInt(quantitySelect.value);
+    if (!selectedWeight) {
+      bagPriceText.textContent = 'Select weight to see price';
+    } else {
+      const bagPrice = selectedWeight * product.basePrice;
+      bagPriceText.textContent = `₹${bagPrice} per bag`;
+    }
+  });
 
   card.addEventListener('click', (e) => {
     const selectedWeight = parseInt(quantitySelect.value);
@@ -113,6 +126,7 @@ function createProductCard(product) {
 
   productsContainer.appendChild(card);
 }
+
 
 // --- Load Products on Scroll ---
 function loadNextBatch() {
@@ -200,3 +214,53 @@ fetch('./src/json/product.json')
   .catch(err => {
     console.error('Error loading products:', err);
   });
+
+  function updateDashboard() {
+    if (cart.length === 0) {
+      dashboardOverlay.classList.add('hidden');
+      return;
+    }
+  
+    dashboardOverlay.classList.remove('hidden');
+  
+    dashboardContent.innerHTML = `
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th>Weight/Bag</th>
+            <th>Bags</th>
+            <th>₹/kg</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4"><strong>Total</strong></td>
+            <td id="total-price"><strong>₹0</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    `;
+  
+    const tbody = dashboardContent.querySelector('tbody');
+    let total = 0;
+  
+    cart.forEach(item => {
+      const subtotal = item.basePrice * item.weightPerBag * item.bags;
+      total += subtotal;
+  
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.brand}</td>
+        <td>${item.weightPerBag} kg</td>
+        <td>${item.bags}</td>
+        <td>₹${item.basePrice}</td>
+        <td>₹${subtotal}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  
+    dashboardContent.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
+  }

@@ -79,7 +79,7 @@ h1 {
     display: block;
     margin: 30px auto 0;
     padding: 12px 20px;
-    background: var(--GoGreen);
+    background: var(--primary-color);
     color: var(--color-white);
     text-align: center;
     font-size: 18px;
@@ -155,102 +155,138 @@ h1 {
    
   .actions {
     margin-top: 10px;
+
+    .decrease{
+      background-color: #f96e29;
+    }
   }
   
   .actions button {
     padding: 6px 10px;
     margin: 0 5px;
     border-radius: 6px;
-    background-color: var(--Accent-Yellow);
+    background-color: var(--primary-color);
   }
   
-  #dashboard-overlay {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #ffffff;
-    border-top: 2px solid #e0e0e0;
-    padding: 16px 24px;
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    transition: transform 0.3s ease;
-    font-family: 'Segoe UI', sans-serif;
-  }
+ 
+  .dashboard-container{
+    .cart-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    
+    .cart-summary-table th,
+    .cart-summary-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    
+    .cart-summary-table thead {
+      background-color: #f2f2f2;
+    }
+    
+    .cart-summary-table tfoot td {
+      background-color: #eee;
+    }
+    #dashboard-overlay {
+      position: fixed;
+      bottom: 0;
+      left: 35%;
+      width: 30%;
+      right: 0;
+      background: #ffffff;
+      border-top: 2px solid #e0e0e0;
+      padding: 16px 24px;
+      box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      @media (max-width: 576px) {
+        left: 0;
+        width: 100%;
+        right: 0;
+      }
+    }
+    
+    #dashboard-overlay.hidden {
+      display: none;
+    }
+    
+    #dashboard-overlay h3 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+      color: #333;
+    }
+    
+    #dashboard-content {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    
+    #dashboard-content div {
+      padding: 8px 0;
+      font-size: 1rem;
+      color: #444;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    #dashboard-content div:last-child {
+      border-bottom: none;
+    }
+    
+    #checkout-final {
+      display: inline-block;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 1rem;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    #checkout-final:hover {
+      background-color: #0056b3;
+    }
   
-  #dashboard-overlay.hidden {
-    display: none;
-  }
-  
-  #dashboard-overlay h3 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    margin-bottom: 12px;
-    color: #333;
-  }
-  
-  #dashboard-content {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-bottom: 16px;
-  }
-  
-  #dashboard-content div {
-    padding: 8px 0;
-    font-size: 1rem;
-    color: #444;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  #dashboard-content div:last-child {
-    border-bottom: none;
-  }
-  
-  #checkout-final {
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-  
-  #checkout-final:hover {
-    background-color: #0056b3;
-  }
+    .close-btn {
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #555;
+    }
+    
+    .dashboard-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    
+    #modify-cart {
+      background: var(--GoGreen);
+      color: var(--color-white);
+      padding: 10px 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    #modify-cart:hover {
+      background-color: #e0e0e0;
+    }
 
-  .close-btn {
-    position: absolute;
-    right: 16px;
-    top: 16px;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #555;
   }
-  
-  .dashboard-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
+  th{
+    padding: 0px 5px;
   }
-  
-  #modify-cart {
-    background: var(--GoGreen);
-    color: var(--color-white);
-    padding: 10px 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  #modify-cart:hover {
-    background-color: #e0e0e0;
-  }
-  
+ 
   
   

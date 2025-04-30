@@ -51,16 +51,16 @@
       <!-- index.html -->
       <div id="productsContainer"></div>
       <button id="go-to-dashboard"
-        style="display:none; position:fixed; bottom:10px; left:50%; transform:translateX(-50%);">Checkout</button>
+        style="display:none; position:fixed; bottom:10px; left:50%; transform:translateX(-50%);"><i class="fa-solid fa-cart-plus"></i>Checkout</button>
     </section>
-    <section>
+    <section class="dashboard-container">
       <div id="dashboard-overlay" class="dashboard hidden">
-        <button id="close-overlay" class="close-btn">×</button>
+        <div id="close-overlay" class="close-btn"><i class="fa-solid fa-circle-xmark"></i></div>
         <h3>Cart Summary</h3>
         <div id="dashboard-content"></div>
         <div class="dashboard-actions">
-          <button id="modify-cart">Modify</button>
-          <button id="checkout-final">Order Now</button>
+          <button id="modify-cart"><i class="fa-solid fa-pen-to-square"></i>Modify</button>
+          <button id="checkout-final"><i class="fa-solid fa-truck"></i>Order Now </i></button>
         </div>
       </div>           
     </section>
