@@ -2,7 +2,7 @@
         /*colors*/
     --primary-color: #7BB661;
     --Accent-Yellow:#FFD700;
-    --GoGreen:#626F47;
+    --GoGreen:#5C4033;
     --Main-Background:#FFFDF7;
     --Section-Background:#F5F5DC;
     --Primary-Text:#333333;
@@ -14,6 +14,8 @@
     --Soft-Shadow:0 2px 4px rgba(0, 0, 0, 0.1);
     --color-white:#FFFFFF;
     --color-black:#000000;
+    --color-red:#FF0000;
+    --color-green:#00FF00;
 
     --skeleton-background:#ddd;
     --skeleton-background-light:#eee;
