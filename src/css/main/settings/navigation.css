@@ -166,6 +166,7 @@ body{
             flex-flow: row nowrap;
             -ms-flex-pack: start;
             justify-content: flex-start;
+            
         }
         .navbar-expand-custom .navbar-nav {
             -ms-flex-direction: row;

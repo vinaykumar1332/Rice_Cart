@@ -45,6 +45,7 @@
   </section>
   <main>
     <section>
+      <div id="products"></div>
       <div id="dev-banner" style="
   background-color: #ffcc00;
   color: #000;
@@ -58,9 +59,9 @@
 ">
         🚧 This site is under development. Some features may not work perfectly.
         <div style="text-align: center; margin-top: 10px;">
-          <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif" 
-               alt="Building Website..." 
-               style="max-width: 300px; width: 80%;">
+          <img
+            src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif"
+            alt="Building Website..." style="max-width: 300px; width: 80%;">
           <h2 style="margin-top: 20px;">We're Building Something Awesome!</h2>
         </div>
       </div>
@@ -107,5 +108,36 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="src/js/main/settings/navigation.js"></script>
+
+<script>
+  fetch('https://script.google.com/macros/s/AKfycbzgHUjH4-2vjTz-_orIQ0y8nd5IkI5EE9CpTj4MZkIcJIewAF2mQ5aoWRHIpWQhI4UI/exec')
+    .then(res => res.json())
+    .then(data => {
+      console.log('Fetched:', data); // Debug output
+
+      if (!Array.isArray(data)) {
+        throw new Error('Invalid data format: Expected an array');
+      }
+
+      const container = document.getElementById('products');
+      data.forEach(product => {
+        const card = document.createElement('div');
+        card.classList.add('product-card');
+        card.innerHTML = `
+  <h3>${product.Brand}</h3>
+  <p>Price: ₹${product.PricePerKg} / kg</p>
+  <p>Available: ${product.AvailableStock} bags</p> <!-- AvailableStock for available quantity -->
+  <p>Types: ${product.AvailableQuantities}</p> <!-- AvailableQuantities for the types -->
+  <img src="${product.ImageURL}" width="150" alt="${product.Brand}">
+`;
+
+        container.appendChild(card);
+      });
+    })
+    .catch(err => {
+      console.error('Error fetching products:', err);
+    });
+
+</script>
 
 </html>
