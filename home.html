@@ -24,7 +24,6 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
@@ -35,10 +34,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="src/css/main/settings/navigation.css">
   <link rel="stylesheet" href="src/css/main/settings/root.css" as="style">
+  <link rel="stylesheet" href="src/css/main/pages/home.css">
+
 </head>
 
 <body>
-  <section class="nav-container">
+  <nav class="nav-container">
     <nav class="navbar navbar-expand-custom navbar-mainbg">
       <a class="navbar-brand navbar-logo animated-logo" href="#">
         Rice<i class="fa-solid fa-wheat-awn wheat-icon"></i><em class="fa-em">Kart</em>
@@ -69,26 +70,36 @@
         </ul>
       </div>
     </nav>
-  </section>
+  </nav>
   <main>
-    <section>
-      <div id="dev-banner" style="
-  background-color: #ffcc00;
-  color: #000;
-  text-align: center;
-  padding: 100px 20px;
-  font-weight: bold;
-  top: 0;
-  width: 100%;
-  z-index: 9999;
-  font-family: sans-serif;
-">
-        🚧 This site is under development. Some features may not work perfectly.
-        <div style="text-align: center; margin-top: 10px;">
-          <img
-            src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTRndXdzcHFrNWRndXlpMHY2ZGVpNzEzMmFqZnliZnpibzRoMXJuMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/HQHwvSBSy7s0AXOlWt/giphy.gif"
-            alt="Building Website..." style="max-width: 300px; width: 80%;">
-          <h2 style="margin-top: 20px;">We're Building Something Awesome!</h2>
+    <section class="container-fluid home-section">
+      <div class="hero-banner">
+        <div class="hero-content">
+          <h1>Welcome to Rice Cart</h1>
+          <p>Your one-stop destination for the finest quality rice delivered right to your doorstep.</p>
+          <a href="./product.html">Shop Now</a>
+        </div>
+      </div>
+    </section>
+    <section class="card-sec-3-container-fluid">
+      <div class="card-sec-3 mt-5 container">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <h2>Our Mission</h2>
+              <p>At Rice Cart, our mission is to make high-quality rice accessible to everyone. We believe in the power
+                of
+                fresh, nutritious food and strive to bring you the best rice varieties from trusted sources.</p>
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <h2>Our Values</h2>
+              <p>We value quality, integrity, and customer satisfaction above all else. Our team works tirelessly to
+                ensure
+                that every grain of rice we deliver meets our high standards.</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
