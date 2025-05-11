@@ -109,35 +109,4 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="src/js/main/settings/navigation.js"></script>
 
-<script>
-  fetch('https://script.google.com/macros/s/AKfycbzgHUjH4-2vjTz-_orIQ0y8nd5IkI5EE9CpTj4MZkIcJIewAF2mQ5aoWRHIpWQhI4UI/exec')
-    .then(res => res.json())
-    .then(data => {
-      console.log('Fetched:', data); // Debug output
-
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid data format: Expected an array');
-      }
-
-      const container = document.getElementById('products');
-      data.forEach(product => {
-        const card = document.createElement('div');
-        card.classList.add('product-card');
-        card.innerHTML = `
-  <h3>${product.Brand}</h3>
-  <p>Price: ₹${product.PricePerKg} / kg</p>
-  <p>Available: ${product.AvailableStock} bags</p> <!-- AvailableStock for available quantity -->
-  <p>Types: ${product.AvailableQuantities}</p> <!-- AvailableQuantities for the types -->
-  <img src="${product.ImageURL}" width="150" alt="${product.Brand}">
-`;
-
-        container.appendChild(card);
-      });
-    })
-    .catch(err => {
-      console.error('Error fetching products:', err);
-    });
-
-</script>
-
 </html>
