@@ -138,13 +138,16 @@ function createProductCard(product) {
     <div class="product-info">
       <h3 class="product-name">${product.brand || 'Unknown'}</h3>
       <p class="product-type">${product.type || 'N/A'}</p>
-      <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Select weight to see price'}</p>
+      <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Check price '}</p>
       ${!isOutOfStock && weightOptions
-      ? `
+      ? `  <div class="custom-select-container">
+           <div class="custom">
             <select id="quantity-${product.id}" class="quantity-select">
               <option value="">Select kgs</option>
               ${weightOptions}
             </select>
+            </div>
+          </div>
             <p class="error-message" id="error-${product.id}" style="display: none; color: red;"></p>
           `
       : ''
@@ -164,7 +167,7 @@ function createProductCard(product) {
       const selectedWeight = parseInt(quantitySelect.value);
       errorMessage.style.display = 'none';
       if (!selectedWeight) {
-        bagPriceText.textContent = 'Select weight to see price';
+        bagPriceText.textContent = 'Check price';
       } else {
         const bagPrice = selectedWeight * product.pricePerKg;
         bagPriceText.textContent = `₹${bagPrice} per bag`;
@@ -261,7 +264,7 @@ productsContainer?.addEventListener('click', (e) => {
 
   if (target.classList.contains('add-to-cart')) {
     if (!selectedWeight) {
-      errorMessage.textContent = 'Please select a weight.';
+      errorMessage.textContent = 'select a weight.';
       errorMessage.style.display = 'block';
       return;
     }
