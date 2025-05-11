@@ -13,7 +13,7 @@
     position: relative;
     width: 100%;
     height: 80vh;
-    background: url('/src/assets/BG/bg.jpg') center center / cover no-repeat;
+    background: url('.../src/assets/BG/bg.jpg') center center / cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
