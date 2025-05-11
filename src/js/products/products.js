@@ -98,7 +98,7 @@ function updateCartUI(card, product, selectedWeight) {
   if (item) {
     actions.innerHTML = `
       <button class="decrease" data-id="${product.id}" data-weight="${selectedWeight}">-</button>
-      <span class="qty">${item.bags} bag(s)</span>
+      <span class="qty">${item.bags}</span>
       <button class="increase" data-id="${product.id}" data-weight="${selectedWeight}">+</button>
     `;
   } else {
@@ -367,3 +367,36 @@ fetch('https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrK
     removeSkeletons();
     productsContainer.innerHTML = '<p>Error loading products. Please try again later.</p>';
   });
+
+  //
+function toggleActionVisible() {
+  const actionDivs = document.querySelectorAll('.actions');
+
+  actionDivs.forEach(div => {
+    const hasDecrease = div.querySelector('.decrease') !== null;
+    const hasIncrease = div.querySelector('.increase') !== null;
+
+    if (hasDecrease && hasIncrease) {
+      div.classList.add('action-visible');
+    } else {
+      div.classList.remove('action-visible');
+    }
+  });
+
+  // ➕ Dashboard logic here:
+  const dashboard = document.getElementById('dashboard-overlay');
+  const anyVisible = document.querySelector('.action-visible');
+
+  if (dashboard && anyVisible) {
+    dashboard.classList.add('active');
+  } else if (dashboard) {
+    dashboard.classList.remove('active');
+  }
+}
+
+// Run once DOM is ready
+document.addEventListener('DOMContentLoaded', toggleActionVisible);
+
+// Re-run on DOM changes
+const observer = new MutationObserver(toggleActionVisible);
+observer.observe(document.body, { childList: true, subtree: true });

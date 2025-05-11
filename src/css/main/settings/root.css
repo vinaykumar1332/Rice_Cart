@@ -29,6 +29,9 @@
    --font-size-l: 16px;
    --font-size-m: 14px;
    --font-size-s: 12px;
+   --font-size-xs:10px;
+   --font-size-xxs: 8px;
+    --font-size-xxxl: 48px;
 
    --font-weight-l: 400;
    --font-weight-m: 500;
