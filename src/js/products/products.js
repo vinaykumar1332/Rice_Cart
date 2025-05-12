@@ -1,4 +1,4 @@
-// DOM References
+// ... variables and initial setup
 const productsContainer = document.getElementById('productsContainer');
 const checkoutBtn = document.getElementById('go-to-dashboard');
 const dashboardOverlay = document.getElementById('dashboard-overlay');
@@ -10,12 +10,9 @@ const closeOverlayBtn = document.getElementById('close-overlay');
 let cart = [];
 let products = [];
 let filteredProducts = [];
-let currentIndex = 0;
-const BATCH_SIZE = 20;
 let searchTerm = '';
 let selectedType = '';
 
-// Create Search Bar and Filter Dropdown
 function createSearchFilter() {
   const searchFilterContainer = document.createElement('div');
   searchFilterContainer.id = 'search-filter-container';
@@ -26,6 +23,11 @@ function createSearchFilter() {
     </select>
   `;
   productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
+
+  const countContainer = document.createElement('div');
+  countContainer.id = 'count-container';
+  countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
+  productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
 
   const searchInput = document.getElementById('search-input');
   const typeFilter = document.getElementById('type-filter');
@@ -41,7 +43,6 @@ function createSearchFilter() {
   });
 }
 
-// Populate Filter Dropdown
 function populateTypeFilter() {
   const typeFilter = document.getElementById('type-filter');
   const uniqueTypes = [...new Set(products.map(p => p.type))].sort();
@@ -53,20 +54,28 @@ function populateTypeFilter() {
   });
 }
 
-// Filter products
 function filterProducts() {
   filteredProducts = products.filter(product => {
-    const matchesSearch = searchTerm ? product.brand?.toLowerCase().includes(searchTerm) : true;
+    const matchesSearch = searchTerm
+      ? product.name?.toLowerCase().includes(searchTerm) ||
+        product.brand?.toLowerCase().includes(searchTerm) ||
+        product.type?.toLowerCase().includes(searchTerm)
+      : true;
     const matchesType = selectedType ? product.type === selectedType : true;
     return matchesSearch && matchesType;
   });
-  currentIndex = 0;
+
   productsContainer.innerHTML = '';
-  loadNextBatch();
+  updateFilteredCount(); // Update count immediately
+  showSkeletons(filteredProducts.length);
+
+  setTimeout(() => {
+    removeSkeletons();
+    displayAllProducts();
+  }, 800);
 }
 
-// Show and remove skeletons
-function showSkeletons(count = BATCH_SIZE) {
+function showSkeletons(count) {
   for (let i = 0; i < count; i++) {
     const skeleton = document.createElement('div');
     skeleton.className = 'skeleton-card';
@@ -86,12 +95,10 @@ function removeSkeletons() {
   document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
 }
 
-// Image fallback
 function getLocalImage(product) {
   return `./src/assets/images/${product.id}.jpg`;
 }
 
-// Update Cart UI
 function updateCartUI(card, product, selectedWeight) {
   const actions = card.querySelector('.actions');
   const item = cart.find(i => i.id === product.id && i.weightPerBag === selectedWeight);
@@ -106,18 +113,14 @@ function updateCartUI(card, product, selectedWeight) {
   }
 }
 
-// Create Product Card
 function createProductCard(product) {
   const card = document.createElement('div');
-  card.className = 'product-card';
   card.className = 'product-card fade-in-on-scroll';
   card.setAttribute('data-type', product.type || 'N/A');
   card.setAttribute('data-id', product.id);
 
   const isOutOfStock = product.status !== 'Active';
-  if (isOutOfStock) {
-    card.classList.add('inactive');
-  }
+  if (isOutOfStock) card.classList.add('inactive');
 
   const availableWeights = product.quantities || [];
   let weightOptions = '';
@@ -139,21 +142,20 @@ function createProductCard(product) {
     </div>
     <div class="product-info">
       <h3 class="product-name">${product.brand || 'Unknown'}</h3>
-      <p class="product-type">${product.type || 'N/A'}</p>
-      <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Check price '}</p>
+      <p class="product-type">${product.name || 'N/A'}</p>
+      <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Check price'}</p>
       ${!isOutOfStock && weightOptions
-      ? `  <div class="custom-select-container">
-           <div class="custom">
-            <select id="quantity-${product.id}" class="quantity-select">
-              <option value="">Select kgs</option>
-              ${weightOptions}
-            </select>
-            </div>
-          </div>
-            <p class="error-message" id="error-${product.id}" style="display: none; color: red;"></p>
-          `
-      : ''
-    }
+        ? `<div class="custom-select-container">
+             <div class="custom">
+              <select id="quantity-${product.id}" class="quantity-select">
+                <option value="">Select kgs</option>
+                ${weightOptions}
+              </select>
+             </div>
+           </div>
+           <p class="error-message" id="error-${product.id}" style="display: none; color: red;"></p>`
+        : ''
+      }
       <div class="actions">
         ${!isOutOfStock && weightOptions ? `<button class="add-to-cart" data-id="${product.id}">Add to Cart</button>` : ''}
       </div>
@@ -173,6 +175,7 @@ function createProductCard(product) {
       } else {
         const bagPrice = selectedWeight * product.pricePerKg;
         bagPriceText.textContent = `₹${bagPrice} per bag`;
+        updateCartUI(card, product, selectedWeight);
       }
     });
   }
@@ -180,22 +183,18 @@ function createProductCard(product) {
   productsContainer?.appendChild(card);
 }
 
-// Load next batch
-function loadNextBatch() {
-  const nextBatch = filteredProducts.slice(currentIndex, currentIndex + BATCH_SIZE);
-  nextBatch.forEach(createProductCard);
-  currentIndex += BATCH_SIZE;
+function displayAllProducts() {
+  productsContainer.innerHTML = '';
+  if (filteredProducts.length === 0) {
+    productsContainer.innerHTML = '<p class="Error"><i class="fa-regular fa-face-sad-tear"></i>No products found.</p>';
+    return;
+  }
+  filteredProducts.forEach(createProductCard);
 }
 
-function handleScroll() {
-  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-  if (scrollTop + clientHeight >= scrollHeight - 10 && currentIndex < filteredProducts.length) {
-    showSkeletons();
-    setTimeout(() => {
-      removeSkeletons();
-      loadNextBatch();
-    }, 800);
-  }
+function updateFilteredCount() {
+  const filteredCount = document.getElementById('filtered-count');
+  filteredCount.textContent = `${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''}`;
 }
 
 function updateDashboard() {
@@ -232,7 +231,6 @@ function updateDashboard() {
   cart.forEach(item => {
     const subtotal = item.basePrice * item.weightPerBag * item.bags;
     total += subtotal;
-
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${item.brand}</td>
@@ -250,7 +248,9 @@ function updateDashboard() {
 function toggleCheckout() {
   checkoutBtn.style.display = cart.length > 0 ? 'block' : 'none';
   checkoutBtn.textContent = `Checkout (${cart.length})`;
-}// Event delegation
+}
+
+// Event Listeners
 productsContainer?.addEventListener('click', (e) => {
   const target = e.target;
   const productId = target.dataset?.id;
@@ -266,7 +266,7 @@ productsContainer?.addEventListener('click', (e) => {
 
   if (target.classList.contains('add-to-cart')) {
     if (!selectedWeight) {
-      errorMessage.textContent = 'select a weight.';
+      errorMessage.textContent = 'Select a weight.';
       errorMessage.style.display = 'block';
       return;
     }
@@ -342,95 +342,78 @@ finalCheckoutBtn.addEventListener('click', () => {
   window.location.href = 'orders.html';
 });
 
-// Initial load
+// Initialization
 createSearchFilter();
-showSkeletons();
+showSkeletons(20);
+
 fetch('https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec')
   .then(res => res.json())
   .then(data => {
     products = data.map(row => ({
       id: row.ID,
       brand: row.Brand,
+      name: row.Name,
       type: row.Type,
       quantities: String(row.Quantity || '')
         .split(',')
         .map(q => parseInt(q.trim()))
         .filter(q => !isNaN(q) && q > 0),
       pricePerKg: parseFloat(row.PricePerKg),
-
       status: row.Status?.trim?.() || 'Inactive'
     }));
-    filteredProducts = products;
+    filteredProducts = [...products];
     populateTypeFilter();
     removeSkeletons();
-  toggleCheckout();
-    loadNextBatch();
-    window.addEventListener('scroll', handleScroll);
+    displayAllProducts();
+    updateFilteredCount();
+    toggleCheckout();
   })
-   .catch(err => {
+  .catch(err => {
     console.error('Error loading products:', err);
     removeSkeletons();
     productsContainer.innerHTML = '<p class="Error">Error loading products. Please try again later.</p>';
+    updateFilteredCount();
   });
 
-  //
+// Visibility & Animations
 function toggleActionVisible() {
   const actionDivs = document.querySelectorAll('.actions');
-
   actionDivs.forEach(div => {
     const hasDecrease = div.querySelector('.decrease') !== null;
     const hasIncrease = div.querySelector('.increase') !== null;
-
-    if (hasDecrease && hasIncrease) {
-      div.classList.add('action-visible');
-    } else {
-      div.classList.remove('action-visible');
-    }
+    div.classList.toggle('action-visible', hasDecrease && hasIncrease);
   });
 
   const dashboard = document.getElementById('dashboard-overlay');
   const anyVisible = document.querySelector('.action-visible');
-
-  if (dashboard && anyVisible) {
-    dashboard.classList.add('active');
-  } else if (dashboard) {
-    dashboard.classList.remove('active');
-  }
+  if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
 }
 
-// Scroll animation observer
 function initScrollFadeIn() {
   const elementsToAnimate = document.querySelectorAll('.fade-in-on-scroll');
-
   const observer = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        obs.unobserve(entry.target); // Animate once
+        obs.unobserve(entry.target);
       }
     });
   }, {
-    threshold: 0.1
-  },{ rootMargin: '0px 0px -10% 0px' });
-
+    threshold: 0.1,
+    rootMargin: '0px 0px -10% 0px'
+  });
   elementsToAnimate.forEach(el => observer.observe(el));
 }
 
-// Run once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   toggleActionVisible();
   initScrollFadeIn();
 });
 
-// Re-run on DOM changes
 const observer = new MutationObserver(() => {
   toggleActionVisible();
   initScrollFadeIn();
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Cleanup
-window.addEventListener('beforeunload', () => {
-  observer.disconnect();
-});
-
+window.addEventListener('beforeunload', () => observer.disconnect());
