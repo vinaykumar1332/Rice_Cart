@@ -45,7 +45,7 @@ h1 {
       flex-direction: row;
 
       .quantity-select {
-        width: 80%;
+        width: 85%;
         margin-top: 3px;
       }
     }
@@ -220,6 +220,13 @@ h1 {
 /* --- Quantity Button Actions --- */
 .actions {
   margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  @media (max-width: 445px) {
+  justify-content: start;
+    
+  }
 }
 
 .actions button {
@@ -634,5 +641,66 @@ td:not(:nth-child(1)) {
     opacity: 1;
     transform: none;
     filter: none;
+  }
+}
+#filtered-count{
+  text-align: right;
+  padding: 0px 10px;
+  font-size: var(--font-size-l);
+  color: var(--Primary-Text);
+  font-weight: var(--font-weight-s);
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+/* Error Message */
+.Error {
+  grid-column: 1 / -1; /* Span all columns in the grid */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 18px;
+  color: #e74c3c; /* Red for error */
+  font-weight: 500;
+  text-align: center;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #e74c3c;
+  border-radius: 8px;
+  margin: 20px auto;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.Error .fa-face-sad-tear {
+  font-size: 24px;
+  color: #e74c3c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .Error {
+    font-size: 16px;
+    padding: 15px;
+    margin: 15px auto;
+    max-width: 300px;
+  }
+
+  .Error .fa-face-sad-tear {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .Error {
+    font-size: 14px;
+    padding: 10px;
+    margin: 10px auto;
+    max-width: 250px;
+  }
+
+  .Error .fa-face-sad-tear {
+    font-size: 18px;
   }
 }
