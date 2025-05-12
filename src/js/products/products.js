@@ -110,6 +110,8 @@ function updateCartUI(card, product, selectedWeight) {
 function createProductCard(product) {
   const card = document.createElement('div');
   card.className = 'product-card';
+  card.className = 'product-card fade-in-on-scroll';
+  card.setAttribute('data-type', product.type || 'N/A');
   card.setAttribute('data-id', product.id);
 
   const isOutOfStock = product.status !== 'Active';
@@ -368,7 +370,7 @@ fetch('https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrK
    .catch(err => {
     console.error('Error loading products:', err);
     removeSkeletons();
-    productsContainer.innerHTML = '<p>Error loading products. Please try again later.</p>';
+    productsContainer.innerHTML = '<p class="Error">Error loading products. Please try again later.</p>';
   });
 
   //
@@ -386,7 +388,6 @@ function toggleActionVisible() {
     }
   });
 
-  // ➕ Dashboard logic here:
   const dashboard = document.getElementById('dashboard-overlay');
   const anyVisible = document.querySelector('.action-visible');
 
@@ -397,9 +398,39 @@ function toggleActionVisible() {
   }
 }
 
+// Scroll animation observer
+function initScrollFadeIn() {
+  const elementsToAnimate = document.querySelectorAll('.fade-in-on-scroll');
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target); // Animate once
+      }
+    });
+  }, {
+    threshold: 0.1
+  },{ rootMargin: '0px 0px -10% 0px' });
+
+  elementsToAnimate.forEach(el => observer.observe(el));
+}
+
 // Run once DOM is ready
-document.addEventListener('DOMContentLoaded', toggleActionVisible);
+document.addEventListener('DOMContentLoaded', () => {
+  toggleActionVisible();
+  initScrollFadeIn();
+});
 
 // Re-run on DOM changes
-const observer = new MutationObserver(toggleActionVisible);
+const observer = new MutationObserver(() => {
+  toggleActionVisible();
+  initScrollFadeIn();
+});
 observer.observe(document.body, { childList: true, subtree: true });
+
+// Cleanup
+window.addEventListener('beforeunload', () => {
+  observer.disconnect();
+});
+
