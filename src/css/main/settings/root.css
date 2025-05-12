@@ -16,7 +16,7 @@
     --color-black:#000000;
     --color-red:#FF0000;
     --color-green:#00FF00;
-
+    --product-card-shadow:rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
     --skeleton-background:#ddd;
     --skeleton-background-light:#eee;
 
