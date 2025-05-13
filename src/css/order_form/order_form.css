@@ -62,4 +62,11 @@
             text-align: center;
         }
     }
+    .order-id{
+        display: none;
+    }
+    .location{
+        display: flex;
+        justify-self: center;
+    }
 }
