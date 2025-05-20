@@ -188,3 +188,38 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbxs1Vigr-HLZO1co-Ht6i
       fields.latitude.value = fields.longitude.value = fields.mapsUrl.value = fields.productId.value = "";
       locationCaptured = false;
     }
+
+    document.getElementById('showTerms').addEventListener('click', function (e) {
+  e.preventDefault();
+  showOverlay('Terms of Service', `
+    <p>These are the terms of service. Please read them carefully before agreeing to proceed with the service.</p>
+    <ul>
+      <li>No unauthorized use.</li>
+      <li>Respect user privacy.</li>
+      <li>Comply with applicable laws.</li>
+    </ul>
+  `);
+});
+
+document.getElementById('showPrivacy').addEventListener('click', function (e) {
+  e.preventDefault();
+  showOverlay('Privacy Policy', `
+    <p>This privacy policy explains how we handle your data.</p>
+    <ul>
+      <li>We do not sell your information.</li>
+      <li>Data is stored securely.</li>
+      <li>You have control over your data.</li>
+    </ul>
+  `);
+});
+
+document.getElementById('closeOverlay').addEventListener('click', function () {
+  document.getElementById('overlay').style.display = 'none';
+});
+
+function showOverlay(title, htmlContent) {
+  const overlay = document.getElementById('overlay');
+  const overlayText = document.getElementById('overlayText');
+  overlayText.innerHTML = `<h3>${title}</h3>${htmlContent}`;
+  overlay.style.display = 'flex';
+}
