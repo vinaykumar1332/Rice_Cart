@@ -1,8 +1,13 @@
+  :root{
+    --button-tag-color: #007bff;
+    --box-shadow-order: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  }
+  
   #Order {
       max-width: 900px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #ffffff;
+      background-color: var(--color-white);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -11,28 +16,65 @@
       color: #333333;
       font-size: 24px;
       margin-bottom: 20px;
+      text-align: center;
     }
-    #mobile {
-      display: block;
+      .input-wrapper {
+      position: relative;
       width: 300px;
       margin: 0 auto 10px;
+    }
+    #mobile {
+      width: 100%;
       padding: 12px;
+      padding-right: 40px; /* Space for clear icon */
       border: 1px solid #cccccc;
       border-radius: 5px;
       font-size: 16px;
       box-sizing: border-box;
     }
+    #mobile.invalid {
+      border-color: #dc3545;
+    }
+    .clear-icon {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      color: #6c757d;
+      cursor: pointer;
+
+      @media (max-width: 600px) {
+        right: 80px;
+        font-size: 16px;
+        
+      }
+    }
+    .clear-icon:hover {
+      color: #dc3545;
+    }
     #searchButton {
       display: block;
       margin: 0 auto;
       padding: 12px 24px;
-      background-color: var(--primary-color, #28a745);
-      color: #ffffff;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
+      border:2px solid var(--primary-color, #28a745);   
+      background-color: var(--color-white);
+      color: var(--primary-color, #28a745);
+      font-size: var(--font-size-l);
       cursor: pointer;
       transition: background-color 0.3s ease;
+      border-radius: var(--padding-s);
+      &:hover {
+        background-color: var(--primary-color, #28a745);
+        color: var(--color-white);
+        border:2px solid var(--primary-color, #28a745); 
+      }
+      &:active {
+        background-color: var(--primary-color, #218838);
+        color: var(--color-white);
+        border:2px solid var(--primary-color, #28a745); 
+      }
     }
     #searchButton:hover {
       background-color: #218838;
@@ -54,23 +96,24 @@
     #filterTags {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: var(--padding-s);
       margin: 20px 0;
     }
     .tag {
       padding: 8px 16px;
       background-color: #e9ecef;
-      border-radius: 20px;
+      border-radius: var(--padding-s);
       cursor: pointer;
       font-size: 14px;
+      border: 1px solid var(--button-tag-color);
       transition: background-color 0.3s ease;
     }
     .tag:hover {
       background-color: #d6d8db;
     }
     .tag.active {
-      background-color: #007bff;
-      color: #ffffff;
+      background-color: var(--button-tag-color);
+      color: var(--color-white);
     }
     #result {
       margin-top: 20px;
@@ -81,12 +124,13 @@
       border-radius: 8px;
       padding: 20px;
       margin-bottom: 15px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      box-shadow:var(--box-shadow-order);
     }
     .order h3 {
       color: #007bff;
       font-size: 20px;
       margin: 0 0 10px;
+      text-align: center;
     }
     .order p {
       margin: 8px 0;
@@ -98,10 +142,13 @@
       font-weight: 600;
     }
     .error {
-      color: #dc3545;
+      color: var(--color-red);
       font-weight: bold;
       text-align: center;
-      font-size: 16px;
+      font-size: var(--font-size-l);
+      padding: 16px 8px;
+      border:var(--color-red) solid 2px;
+      border-radius: var(--padding-s);
     }
     .raw-data {
       background-color: #f0f0f0;
@@ -109,11 +156,12 @@
       font-family: monospace;
       font-size: 14px;
       border-radius: 5px;
-      margin-top: 10px;
+      margin-top: var(--padding-s);
     }
     @media (max-width: 600px) {
       #mobile {
-        width: 100%;
+        width: 80%;
+        margin-left: 33px;
       }
       #Order {
         padding: 15px;
@@ -129,4 +177,7 @@
     }
     #col-md-4{
         padding-top: 100px;
+    }
+    .address-none{
+        display: none;
     }

@@ -60,64 +60,70 @@
       <div class="container-lg">
         <div class="form-container">
           <h4 class="text-center mb-4">Orders Management</h4>
-                  <form id="submit-to-google-sheet" name="submit-to-google-sheet">
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input class="form-control" type="text" name="Name" id="name" placeholder="Enter your name" />
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="mobile">Mobile Number:</label>
-            <input class="form-control" type="tel" name="Contact No" id="mobile" placeholder="Enter 10-digit mobile number" maxlength="10" pattern="[0-9]{10}" title="Enter a valid 10-digit mobile number" required />
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="address">Address:</label>
-            <textarea class="form-control" name="Address" id="address" placeholder="Enter your address" required></textarea>
-            <div class="invalid-feedback"></div>
-          </div>
-          <div class="form-group">
-            <label for="brand">Brand:</label>
-            <input class="form-control" type="text" id="brand" name="Brand" readonly />
-          </div>
-          <div class="form-group">
-            <label for="bags">Number of Bags:</label>
-            <input class="form-control" type="text" id="bags" name="Bags" readonly />
-          </div>
-          <div class="form-group">
-            <label for="weightPerBag">Weight per Bag (kg):</label>
-            <input class="form-control" type="text" id="weightPerBag" name="Weight per Bag" readonly />
-          </div>
-          <div class="form-group">
-            <label for="basePrice">Price per kg (₹):</label>
-            <input class="form-control" type="text" id="basePrice" name="Price per kg" readonly />
-          </div>
-          <div class="form-group">
-            <label for="totalPrice">Total Price:</label>
-            <input class="form-control" type="text" id="totalPrice" name="Total Price" readonly />
-          </div>
-          <div class="form-group order-id">
-            <label id="orderId" for="orderId">Order ID:</label>
-            <input class="form-control" type="text" id="orderId" name="Order ID" readonly />
-          </div>
-          <input type="hidden" name="Product ID" id="productId" />
-          <input type="hidden" name="Latitude" id="latitude" />
-          <input type="hidden" name="Longitude" id="longitude" />
-          <input type="hidden" name="GPS Location" id="mapsUrl" />
-          <div class="form-group location">
-            <button type="button" class="btn btn-outline-secondary btn-block mb-3 location-btn" onclick="getLocation()">
-              <i class="fa-solid fa-location-dot"></i> Share Location
-            </button>
-          </div>
-          <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="ex" name="Terms Agreed" required />
-            <label class="form-check-label" for="ex">
-              I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>.
-            </label>
-            <div class="invalid-feedback"></div>
-          </div>
-          <button type="submit" class="btn btn-primary btn-block">Place Order</button>
-        </form>
+          <form id="submit-to-google-sheet" name="submit-to-google-sheet">
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input class="form-control" type="text" name="Name" id="name" placeholder="Enter your name" />
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-group">
+              <label for="mobile">Mobile Number:</label>
+              <input class="form-control" type="tel" name="Contact No" id="mobile"
+                placeholder="Enter 10-digit mobile number" maxlength="10" pattern="[0-9]{10}"
+                title="Enter a valid 10-digit mobile number" required />
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-group">
+              <label for="address">Address:</label>
+              <textarea class="form-control" name="Address" id="address" placeholder="Enter your address"
+                required></textarea>
+              <div class="invalid-feedback"></div>
+            </div>
+            <div class="form-group">
+              <label for="brand">Brand:</label>
+              <input class="form-control" type="text" id="brand" name="Brand" readonly />
+            </div>
+            <div class="form-group">
+              <label for="bags">Number of Bags:</label>
+              <input class="form-control" type="text" id="bags" name="Bags" readonly />
+            </div>
+            <div class="form-group">
+              <label for="weightPerBag">Weight per Bag (kg):</label>
+              <input class="form-control" type="text" id="weightPerBag" name="Weight per Bag" readonly />
+            </div>
+            <div class="form-group">
+              <label for="basePrice">Price per kg (₹):</label>
+              <input class="form-control" type="text" id="basePrice" name="Price per kg" readonly />
+            </div>
+            <div class="form-group">
+              <label for="totalPrice">Total Price:</label>
+              <input class="form-control" type="text" id="totalPrice" name="Total Price" readonly />
+            </div>
+            <div class="form-group order-id">
+              <label id="orderId" for="orderId">Order ID:</label>
+              <input class="form-control" type="text" id="orderId" name="Order ID" readonly />
+            </div>
+            <input type="hidden" name="Product ID" id="productId" />
+            <input type="hidden" name="Latitude" id="latitude" />
+            <input type="hidden" name="Longitude" id="longitude" />
+            <input type="hidden" name="GPS Location" id="mapsUrl" />
+            <div class="form-group location">
+              <button type="button" class="btn btn-outline-secondary btn-block mb-3 location-btn"
+                onclick="getLocation()">
+                <i class="fa-solid fa-location-dot"></i> Share Location
+              </button>
+            </div>
+            <div class="form-group form-check">
+              <input class="form-check-input" type="checkbox" id="ex" name="Terms Agreed" required />
+              <label class="form-check-label" for="ex">
+                I agree to the
+                <a href="#" id="showTerms">Terms of Service</a> and
+                <a href="#" id="showPrivacy">Privacy Policy</a>.
+              </label>
+              <div class="invalid-feedback"></div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Place Order</button>
+          </form>
           <div id="loader" style="display: none; text-align: center; margin-top: 10px;position: absolute; top: 0px;
                 bottom: 0px;
                 left: 0px;
@@ -166,6 +172,14 @@
       </div>
     </footer>
   </section>
+
+  <div id="overlay" class="overlay">
+    <div class="overlay-content">
+      <button id="closeOverlay" class="close-btn">&times;</button>
+      <div id="overlayText"></div>
+    </div>
+  </div>
+
 </body>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
