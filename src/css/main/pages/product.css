@@ -20,6 +20,19 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+
+  .inactive {
+    pointer-events: none;
+
+    .product-info {
+      .product-bag-price {
+        margin-top: var(--padding-m);
+        font-size: var(--font-size-xxl);
+        color:var(--color-red);
+        opacity: 0.5;
+      }
+    }
+  }
 }
 
 @media (max-width: 991px) {
@@ -72,7 +85,7 @@ h1 {
 .product-card {
   border-radius: var(--padding-s);
   padding: 15px;
- box-shadow: var(--product-card-shadow);
+  box-shadow: var(--product-card-shadow);
   background: var(--color-white);
   border: 1px solid var(--color-gray);
   text-align: center;
@@ -141,6 +154,7 @@ h1 {
   font-weight: bold;
   margin: 5px 0;
 }
+
 /* --- Dashboard Button --- */
 #go-to-dashboard {
   display: block;
@@ -168,6 +182,7 @@ h1 {
   background: var(--skeleton-background-light);
   animation: pulse 1s infinite;
   border-radius: 10px;
+
   @media (max-width: 445px) {
     display: flex;
     flex-direction: row;
@@ -184,7 +199,7 @@ h1 {
   @media (max-width: 445px) {
     width: 50%;
     height: 200px;
-    
+
   }
 }
 
@@ -223,9 +238,10 @@ h1 {
   display: flex;
   flex-direction: row;
   justify-content: center;
+
   @media (max-width: 445px) {
-  justify-content: start;
-    
+    justify-content: start;
+
   }
 }
 
@@ -235,11 +251,13 @@ h1 {
   border: 1px solid var(--primary-color);
   background-color: var(--primary-color);
   color: var(--color-white);
+
   &:hover {
     background-color: var(--color-white);
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
   }
+
   &:active {
     background-color: var(--color-white);
     border: 2px solid var(--primary-color);
@@ -453,12 +471,13 @@ h1 {
   font-weight: 600;
   color: #333;
   margin: 10px 0 3px;
-   display: -webkit-box;
-  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Limit to 2 lines */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-   word-break: break-all;
+  word-break: break-all;
 }
 
 .product-type {
@@ -536,13 +555,13 @@ h1 {
 .actions.action-visible {
   display: flex;
   justify-content: center;
-  align-items:center;
+  align-items: center;
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
 
   @media (max-width: 445px) {
-    justify-content:start;
+    justify-content: start;
   }
 }
 
@@ -604,46 +623,60 @@ td:not(:nth-child(1)) {
 
 .fade-in-on-scroll {
   opacity: 0;
-  transform: translateY(20px) scale(0.98); /* Add subtle scaling for depth */
-  filter: blur(2px); /* Slight blur for a soft entry */
-  transition: 
-    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), /* Smooth ease for opacity */
-    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), /* Smooth ease for transform */
-    filter 0.8s ease-out; /* Blur fades out smoothly */
-  will-change: opacity, transform, filter; /* Optimize for performance */
+  transform: translateY(20px) scale(0.98);
+  /* Add subtle scaling for depth */
+  filter: blur(2px);
+  /* Slight blur for a soft entry */
+  transition:
+    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    /* Smooth ease for opacity */
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    /* Smooth ease for transform */
+    filter 0.8s ease-out;
+  /* Blur fades out smoothly */
+  will-change: opacity, transform, filter;
+  /* Optimize for performance */
 }
 
 .fade-in-on-scroll.visible {
   opacity: 1;
-  transform: translateY(0) scale(1); /* Scale back to normal */
-  filter: blur(0); /* Remove blur */
+  transform: translateY(0) scale(1);
+  /* Scale back to normal */
+  filter: blur(0);
+  /* Remove blur */
 }
 
 /* Optional: Staggered animation for multiple elements */
 .fade-in-on-scroll {
-  transition-delay: 0s; /* Default delay */
+  transition-delay: 0s;
+  /* Default delay */
 }
 
 .fade-in-on-scroll:nth-child(2n) {
-  transition-delay: 0.1s; /* Slight stagger for every other element */
+  transition-delay: 0.1s;
+  /* Slight stagger for every other element */
 }
 
 .fade-in-on-scroll:nth-child(3n) {
-  transition-delay: 0.2s; /* Further stagger for every third element */
+  transition-delay: 0.2s;
+  /* Further stagger for every third element */
 }
 
 /* Ensure smooth animation on mobile */
 @media (prefers-reduced-motion: reduce) {
   .fade-in-on-scroll {
-    transition: none; /* Respect user preference for reduced motion */
+    transition: none;
+    /* Respect user preference for reduced motion */
   }
+
   .fade-in-on-scroll.visible {
     opacity: 1;
     transform: none;
     filter: none;
   }
 }
-#filtered-count{
+
+#filtered-count {
   text-align: right;
   padding: 0px 10px;
   font-size: var(--font-size-l);
@@ -652,15 +685,18 @@ td:not(:nth-child(1)) {
   margin-top: 20px;
   margin-bottom: 10px;
 }
+
 /* Error Message */
 .Error {
-  grid-column: 1 / -1; /* Span all columns in the grid */
+  grid-column: 1 / -1;
+  /* Span all columns in the grid */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   font-size: 18px;
-  color: #e74c3c; /* Red for error */
+  color: #e74c3c;
+  /* Red for error */
   font-weight: 500;
   text-align: center;
   padding: 20px;

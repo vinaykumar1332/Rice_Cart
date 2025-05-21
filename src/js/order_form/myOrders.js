@@ -114,8 +114,8 @@
                     <p><strong>Total Bags:</strong> ${totalBags}</p>
                     <p><strong>Total Price:</strong> ${totalPrice}</p>
                     <p class="address-none"><strong>Address:</strong> ${address}</p>
+                    <p class="gps-location"><strong>GPS Location:</strong> <a href="${gpsLocation}" target="_blank" rel="noopener noreferrer">View Location</a></p>
                     <p class="${statusClass}"><strong>Status:</strong> ${orderStatus}</p>
-                    <p><strong>GPS Location:</strong> <a href="${gpsLocation}" target="_blank" rel="noopener noreferrer">View Location</a></p>
                     ${rawData}
                   </div>
                 `;
