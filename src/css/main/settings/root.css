@@ -1,63 +1,73 @@
-:root{
-        /*colors*/
+:root {
+    /*colors*/
     --primary-color: #7BB661;
-    --Accent-Yellow:#FFD700;
-    --GoGreen:#5C4033;
-    --Main-Background:#FFFDF7;
-    --Section-Background:#F5F5DC;
-    --Primary-Text:#333333;
-    --Secondary-Text:#4A4A4A;
-    --Tertiary-Text:#7D7D7D;
-    --Link-Color:#007BFF;
-    --Link-Hover-Color:#0056b3;
-    --Soft-Border:#E0E0E0;
-    --Soft-Shadow:0 2px 4px rgba(0, 0, 0, 0.1);
-    --color-white:#FFFFFF;
-    --color-black:#000000;
-    --color-red:#FF0000;
-    --color-green:#00FF00;
-    --product-card-shadow:rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
-    --skeleton-background:#ddd;
-    --skeleton-background-light:#eee;
+    --Accent-Yellow: #FFD700;
+    --GoGreen: #5C4033;
+    --Main-Background: #FFFDF7;
+    --Section-Background: #F5F5DC;
+    --Primary-Text: #333333;
+    --Secondary-Text: #4A4A4A;
+    --Tertiary-Text: #7D7D7D;
+    --Link-Color: #007BFF;
+    --Link-Hover-Color: #0056b3;
+    --Soft-Border: #E0E0E0;
+    --Soft-Shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --color-white: #FFFFFF;
+    --color-black: #000000;
+    --color-red: #FF0000;
+    --color-green: #00FF00;
+    --product-card-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    --skeleton-background: #ddd;
+    --skeleton-background-light: #eee;
 
-    
-   /* Fonts (Unchanged) */
-   --font-family-body: 'Arial', sans-serif;
-   --font-size-xxl: 24px;
-   --font-size-xl: 20px;
-   --font-size-xxxl: 48px;
-   --font-size-l: 16px;
-   --font-size-m: 14px;
-   --font-size-s: 12px;
-   --font-size-xs:10px;
-   --font-size-xxs: 8px;
+
+    /* Fonts (Unchanged) */
+    --font-family-body: 'Arial', sans-serif;
+    --font-size-xxl: 24px;
+    --font-size-xl: 20px;
+    --font-size-xxxl: 48px;
+    --font-size-l: 16px;
+    --font-size-m: 14px;
+    --font-size-s: 12px;
+    --font-size-xs: 10px;
+    --font-size-xxs: 8px;
     --font-size-xxxl: 48px;
 
-   --font-weight-l: 400;
-   --font-weight-m: 500;
-   --font-weight-s: 600;
-   --font-weight-xxl: 700;
-   --font-weight-xxxl: 900;
-   
-   --line-height: 1.5;
-   --border-radius: 5px;
+    --font-weight-l: 400;
+    --font-weight-m: 500;
+    --font-weight-s: 600;
+    --font-weight-xxl: 700;
+    --font-weight-xxxl: 900;
 
-   /* Spacing (Unchanged) */
-   --padding-s: 0.625rem; /* 10px */
-   --padding-m: 1.25rem;  /* 20px */
-   --padding-l: 1.875rem; /* 30px */
-   --padding-xl: 2.5rem;  /* 40px */
-   --padding-xxl: 3.125rem; /* 50px */
-   --padding-xxxl: 3.75rem; /* 60px */
+    --line-height: 1.5;
+    --border-radius: 5px;
 
-   --margin-s: 0.625rem; /* 10px */
-   --margin-m: 1.25rem;  /* 20px */
-   --margin-l: 1.875rem; /* 30px */
-   --margin-xl: 2.5rem;  /* 40px */
-    
+    /* Spacing (Unchanged) */
+    --padding-s: 0.625rem;
+    /* 10px */
+    --padding-m: 1.25rem;
+    /* 20px */
+    --padding-l: 1.875rem;
+    /* 30px */
+    --padding-xl: 2.5rem;
+    /* 40px */
+    --padding-xxl: 3.125rem;
+    /* 50px */
+    --padding-xxxl: 3.75rem;
+    /* 60px */
+
+    --margin-s: 0.625rem;
+    /* 10px */
+    --margin-m: 1.25rem;
+    /* 20px */
+    --margin-l: 1.875rem;
+    /* 30px */
+    --margin-xl: 2.5rem;
+    /* 40px */
+
 }
 
-.btn-primary{
+.btn-primary {
     background-color: var(--primary-color);
     color: var(--color-white);
     border-radius: var(--border-radius);
@@ -68,40 +78,48 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.btn-primary:hover{
+
+.btn-primary:hover {
     background-color: var(--Accent-Yellow);
     color: var(--color-black);
     box-shadow: var(--Soft-Shadow);
 }
-.btn-primary:focus{
+
+.btn-primary:focus {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-.btn-primary:active{
+
+.btn-primary:active {
     background-color: var(--Dark-Brown);
     color: var(--color-white);
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-.btn-primary:disabled{
+
+.btn-primary:disabled {
     background-color: var(--Soft-Shadow);
     color: var(--color-white);
     cursor: not-allowed;
 }
-.btn-primary:disabled:hover{
+
+.btn-primary:disabled:hover {
     background-color: var(--Soft-Shadow);
     color: var(--color-white);
     box-shadow: none;
 }
-.btn-primary:disabled:focus{
+
+.btn-primary:disabled:focus {
     outline: none;
     box-shadow: none;
 }
-.btn-primary:disabled:active{
+
+.btn-primary:disabled:active {
     background-color: var(--Soft-Shadow);
     color: var(--color-white);
     box-shadow: none;
 }
-.btn-secondary{
+
+.btn-secondary {
     background-color: var(--Accent-Yellow);
     color: var(--color-black);
     border-radius: var(--border-radius);
@@ -112,27 +130,148 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.btn-secondary:hover{
+
+.btn-secondary:hover {
     background-color: var(--primary-color);
     color: var(--color-black);
     box-shadow: var(--Soft-Shadow);
-}   
-.btn-secondary:focus{
+}
+
+.btn-secondary:focus {
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-.btn-secondary:active{
+
+.btn-secondary:active {
     background-color: var(--Dark-Brown);
     color: var(--color-white);
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-.btn-secondary:disabled{
+
+.btn-secondary:disabled {
     background-color: var(--Soft-Shadow);
     color: var(--color-white);
     cursor: not-allowed;
 }
-.btn.btn-secondary:disabled:hover{
+
+.btn.btn-secondary:disabled:hover {
     background-color: var(--Soft-Shadow);
     color: var(--color-white);
     box-shadow: none;
+}
+
+/*overlay*/
+div.overlay {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(20, 20, 20, 0.95));
+    color: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translate(120%, 120%) scale(0.85);
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    pointer-events: none;
+    max-width: 90vw;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 600px) {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 3px;
+
+        .close-icon {
+            position: relative;
+            left: 49px;
+            top: -8px;
+        }
+    }
+}
+
+
+.overlay.visible {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+    pointer-events: auto;
+}
+
+#installButton {
+    display: none;
+    padding: 10px 18px;
+    font-size: 14px;
+    background: linear-gradient(to right, #2ecc71, #27ae60);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    font-weight: 500;
+}
+
+#installButton:hover {
+    background: linear-gradient(to right, #27ae60, #219653);
+    transform: translateY(-2px);
+}
+
+#installButton:active {
+    transform: translateY(0);
+}
+
+.overlay-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+/* Close icon using CSS pseudo-element */
+
+.overlay:hover::after {
+    color: #ff5555;
+    transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .overlay {
+        bottom: 15px;
+        right: 15px;
+        padding: 12px 16px;
+        gap: 10px;
+        border-radius: 10px;
+    }
+
+    .overlay-text {
+        font-size: 13px;
+    }
+
+    #installButton {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .overlay::after {
+        font-size: 16px;
+        padding: 4px;
+    }
+}
+
+@media (max-width: 400px) {
+    .overlay {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #installButton {
+        width: 100%;
+        text-align: center;
+    }
 }

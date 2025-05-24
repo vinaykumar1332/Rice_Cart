@@ -103,42 +103,79 @@
         </div>
       </div>
     </section>
+      <div class="overlay" id="installOverlay">
+    <span class="overlay-text">Install our app now!</span>
+    <button id="installButton">Download App</button>
+    <span class="close-icon" id="closeOverlay">✕</span>
+  </div>
   </main>
-  <section class="footer-container">
-    <footer class="mt-auto fg-bg">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-4 mb-3">
-            <h5>About Us</h5>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac ante mollis quam tristique convallis.
-            </p>
-          </div>
-          <div class="col-md-4 mb-3">
-            <h5>Quick Links</h5>
-            <ul class="list-unstyled">
-              <li><a href="#" class="text-decoration-none text-white">Home</a></li>
-              <li><a href="#" class="text-decoration-none text-white">Services</a></li>
-              <li><a href="#" class="text-decoration-none text-white">Contact</a></li>
-            </ul>
-          </div>
-          <div class="col-md-4 mb-3">
-            <h5>Follow Us</h5>
-            <ul class="list-inline social-icons">
-              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-facebook"></i></a></li>
-              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-twitter"></i></a></li>
-              <li class="list-inline-item"><a href="#" class="text-white"><i class="bi bi-instagram"></i></a></li>
-            </ul>
-          </div>
+<footer aria-label="Footer navigation" class="footer-container">
+  <div class="fg-bg">
+    <div class="container">
+      <div class="row">
+        <!-- About Us Section -->
+        <div class="col-12 col-md-4 mb-4">
+          <h5 class="footer-heading">About Us</h5>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac ante mollis quam tristique convallis.</p>
         </div>
-        <hr class="mb-4">
-        <div class="row">
-          <div class="col-md-12 text-center">
-            <p>&copy; 2025 Your Company. All rights reserved.</p>
-          </div>
+        <!-- Quick Links Section -->
+        <div class="col-12 col-md-4 mb-4">
+          <h5 class="footer-heading">Quick Links</h5>
+          <ul class="list-unstyled footer-links" role="navigation">
+            <li><a href="#" class="text-decoration-none" aria-label="Go to Home page">Home</a></li>
+            <li><a href="#" class="text-decoration-none" aria-label="Go to Services page">Services</a></li>
+            <li><a href="#" class="text-decoration-none" aria-label="Go to Contact page">Contact</a></li>
+          </ul>
+        </div>
+        <!-- Contact Us Section -->
+        <div class="col-12 col-md-4 mb-4">
+          <h5 class="footer-heading">Contact Us</h5>
+          <ul class="list-unstyled contact-info">
+            <li>
+              <a href="tel:+1234567890" class="text-decoration-none" aria-label="Call us at +1-234-567-890">
+                <i class="bi bi-telephone-fill me-2"></i>+1-234-567-890
+              </a>
+            </li>
+            <li>
+              <a href="mailto:info@yourcompany.com" class="text-decoration-none" aria-label="Email us at info@yourcompany.com">
+                <i class="bi bi-envelope-fill me-2"></i>info@yourcompany.com
+              </a>
+            </li>
+          </ul>
+          <h5 class="footer-heading mt-3">Follow Us</h5>
+          <ul class="list-inline social-icons" role="list">
+            <li class="list-inline-item">
+              <a href="https://facebook.com" class="social-link" aria-label="Follow us on Facebook" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-facebook"></i>
+              </a>
+            </li>
+            <li class="list-inline-item">
+              <a href="https://twitter.com" class="social-link" aria-label="Follow us on Twitter" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-twitter-x"></i>
+              </a>
+            </li>
+            <li class="list-inline-item">
+              <a href="https://instagram.com" class="social-link" aria-label="Follow us on Instagram" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-instagram"></i>
+              </a>
+            </li>
+            <li class="list-inline-item">
+              <a href="https://linkedin.com" class="social-link" aria-label="Follow us on LinkedIn" target="_blank" rel="noopener noreferrer">
+                <i class="bi bi-linkedin"></i>
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
-    </footer>
-  </section>
+      <hr class="footer-divider">
+      <div class="row">
+        <div class="col-12 text-center">
+          <p class="footer-copyright" role="contentinfo">&copy; 2025 Your Company. All rights reserved.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
 </body>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
