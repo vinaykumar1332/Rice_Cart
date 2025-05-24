@@ -63,3 +63,55 @@ if (menuToggle) {
     }
   });
 }
+
+   let deferredPrompt;
+    const installBtn = document.getElementById('installButton');
+    const installOverlay = document.getElementById('installOverlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      setTimeout(() => {
+        installOverlay.classList.add('visible');
+        installBtn.style.display = 'inline-block';
+      }, 2000);
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        try {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(outcome === 'accepted' ? 'User accepted the install prompt' : 'User dismissed the install prompt');
+          deferredPrompt = null;
+        } catch (error) {
+          console.error('Error with install prompt:', error);
+        }
+        installOverlay.classList.remove('visible');
+        installBtn.style.display = 'none';
+      }
+    });
+
+    closeOverlay.addEventListener('click', () => {
+      installOverlay.classList.remove('visible');
+      installBtn.style.display = 'none';
+    });
+
+    installOverlay.addEventListener('click', (e) => {
+      if (e.target === installOverlay) {
+        installOverlay.classList.remove('visible');
+        installBtn.style.display = 'none';
+      }
+    });
+
+    // Fallback if beforeinstallprompt doesn't fire (for testing)
+    window.addEventListener('load', () => {
+      if (!deferredPrompt) {
+        console.log('beforeinstallprompt not supported or not fired, showing overlay for testing');
+        setTimeout(() => {
+          installOverlay.classList.add('visible');
+          installBtn.style.display = 'inline-block';
+        }, 2000);
+      }
+    });
