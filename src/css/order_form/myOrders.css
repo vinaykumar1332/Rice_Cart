@@ -8,16 +8,16 @@
   #Order {
       max-width: 900px;
       margin: 0 auto;
-      padding: 20px;
+      padding: var(--padding-m);
       background-color: var(--color-white);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     #Order h2 {
       text-align: center;
-      color: #333333;
-      font-size: 24px;
-      margin-bottom: 20px;
+      color: var(--Primary-Text);
+      font-size: var(--font-size-xxl);
+      margin-bottom: var(--padding-m);
       text-align: center;
     }
       .input-wrapper {
@@ -28,10 +28,10 @@
     #mobile {
       width: 100%;
       padding: 12px;
-      padding-right: 40px; /* Space for clear icon */
+      padding-right: var(--padding-xl); /* Space for clear icon */
       border: 1px solid #cccccc;
       border-radius: 5px;
-      font-size: 16px;
+      font-size: var(--font-size-l);
       box-sizing: border-box;
     }
     #mobile.invalid {
@@ -125,6 +125,34 @@
     }
     #result {
       margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 2fr));
+      gap: 20px;
+      justify-content: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #888 #f1f1f1;
+      -ms-overflow-style: none; /* IE and Edge */
+      &::-webkit-scrollbar {
+        width: 8px;
+      } 
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+      }
+      &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+
+    }
+    #result:has(> :only-child){
+      grid-template-columns: unset;
     }
     .order {
       background-color: #fafafa;

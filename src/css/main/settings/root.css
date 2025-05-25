@@ -166,7 +166,8 @@ div.overlay {
     bottom: 25px;
     right: 25px;
     background: linear-gradient(135deg, rgba(40, 40, 40, 0.9), rgba(20, 20, 20, 0.95));
-    color: #ffffff;
+    color:var(--color-white);
+    font-family: var(--font-family-body);
     padding: 16px 20px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -191,6 +192,7 @@ div.overlay {
             position: relative;
             left: 49px;
             top: -8px;
+            cursor: pointer;
         }
     }
 }
