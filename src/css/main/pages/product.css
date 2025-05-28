@@ -94,7 +94,9 @@ h1 {
   flex-direction: column;
   justify-content: space-between;
 }
-
+.product-card{
+  border: 0.5px solid ;
+}
 .product-card:hover {
   transform: translateY(-5px);
 }
