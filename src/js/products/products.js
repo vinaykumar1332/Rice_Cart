@@ -216,7 +216,7 @@ function updateDashboard() {
         </tr>
       </thead>
       <tbody></tbody>
-      <tfoot>
+      <tfoot class="tfoot">
         <tr>
           <td colspan="4"><strong>Total</strong></td>
           <td id="total-price"><strong>₹0</strong></td>
