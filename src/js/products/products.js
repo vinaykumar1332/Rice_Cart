@@ -324,17 +324,22 @@ checkoutBtn.addEventListener('click', () => {
   if (cart.length === 0) return;
   updateDashboard();
   checkoutBtn.style.display = 'none';
-  dashboardOverlay?.classList.remove('hidden');
 });
 
 modifyBtn.addEventListener('click', () => {
-  dashboardOverlay.classList.add('hidden');
-  toggleCheckout();
+  dashboardOverlay.classList.remove('active');
+  setTimeout(() => {
+    dashboardOverlay.classList.add('hidden');
+    toggleCheckout();
+  }, 500); // Delay matches transition duration
 });
 
 closeOverlayBtn.addEventListener('click', () => {
-  dashboardOverlay.classList.add('hidden');
-  toggleCheckout();
+  dashboardOverlay.classList.remove('active');
+  setTimeout(() => {
+    dashboardOverlay.classList.add('hidden');
+    toggleCheckout();
+  }, 500); // Delay matches transition duration
 });
 
 finalCheckoutBtn.addEventListener('click', () => {
@@ -417,4 +422,3 @@ const observer = new MutationObserver(() => {
 observer.observe(document.body, { childList: true, subtree: true });
 
 window.addEventListener('beforeunload', () => observer.disconnect());
-

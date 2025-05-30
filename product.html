@@ -70,16 +70,16 @@
       <!-- index.html -->
       <div id="productsContainer"></div>
       <button id="go-to-dashboard"
-        style="display:none; position:fixed; bottom:10px; left:50%; transform:translateX(-50%);"><i class="fa-solid fa-cart-plus"></i>Checkout</button>
+        style="display:none; position:fixed; bottom:10px; left:49%;z-index: 99; transform:translateX(-50%);"><i class="fa-solid fa-cart-plus"></i>Checkout</button>
     </section>
     <section class="dashboard-container">
       <div id="dashboard-overlay" class="dashboard hidden">
         <div id="close-overlay" class="close-btn"><i class="fa-solid fa-circle-xmark"></i></div>
-        <h3>Cart Summary</h3>
+        <h3>Summary</h3>
         <div id="dashboard-content"></div>
         <div class="dashboard-actions">
           <button id="modify-cart"><i class="fa-solid fa-pen-to-square"></i>Modify</button>
-          <button id="checkout-final"><i class="fa-solid fa-truck"></i>Order Now </i></button>
+          <button id="checkout-final">Buy now <i class="fa-solid fa-truck"></i></button>
         </div>
       </div>           
     </section>
