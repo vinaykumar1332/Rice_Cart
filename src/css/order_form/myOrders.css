@@ -244,3 +244,51 @@
 p.status-unknown {
       color: #6c757d; /* Gray for Unknown */
     }
+    .order {
+  position: relative;
+  background: #fff;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  color: #000;
+}
+
+.pdf-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.download-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.download-btn:hover {
+  background: #0056b3;
+}
+
+/* Ensure elements are PDF-friendly */
+.order p, .order h3 {
+  color: #000 !important;
+  font-family: Arial, sans-serif !important;
+  margin: 5px 0;
+}
