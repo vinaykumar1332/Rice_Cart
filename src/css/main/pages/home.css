@@ -12,8 +12,8 @@
   .hero-banner {
     position: relative;
     width: 100%;
-    height: 80vh;
-    background: url('.../src/assets/BG/bg.jpg') center center / cover no-repeat;
+    height: 110vh;
+    background: url('/src/assets/BG/bg.jpg') center center / cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,7 +38,7 @@
     padding: 20px;
     animation: fadeInUp 1s ease-out;
     @media (max-width: 768px) {
-      top: 20%;
+      top: 0%;
     }
   }
   
