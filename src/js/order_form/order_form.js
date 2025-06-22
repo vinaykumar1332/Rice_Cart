@@ -174,20 +174,85 @@ const scriptURL = "https://script.google.com/macros/s/AKfycbxs1Vigr-HLZO1co-Ht6i
       return Array.from({ length: 10 }, () => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]).join("");
     }
 
-    function showThankYouOverlay(orderId) {
-      const overlay = document.createElement("div");
-      overlay.innerHTML = `
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: white; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;">
-          <h2>🎉 Order Placed!</h2>
-          <p>We'll contact you soon for delivery.</p>
-          <button  class="btn btn-primary mt-3"><a href="https://vinaykumar1332.github.io/Rice_Cart/product.html">OK</a></button>
-        </div>
-      `;
-      document.body.appendChild(overlay);
-      form.reset();
-      fields.latitude.value = fields.longitude.value = fields.mapsUrl.value = fields.productId.value = "";
-      locationCaptured = false;
-    }
+function showThankYouOverlay(orderId) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #ffffff;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.5s ease-in-out;
+  `;
+
+  overlay.innerHTML = `
+    <style>
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .thank-you-box {
+        max-width: 400px;
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        text-align: center;
+        animation: fadeIn 0.5s ease;
+      }
+      .thank-you-box h2 {
+        margin-bottom: 10px;
+        color: #28a745;
+        font-size: 26px;
+      }
+      .thank-you-box p {
+        margin: 10px 0;
+        color: #444;
+      }
+      .thank-you-buttons {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .thank-you-buttons a {
+        text-decoration: none;
+        background: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: background 0.3s;
+      }
+      .thank-you-buttons a:hover {
+        background: #0056b3;
+      }
+      @media (max-width: 480px) {
+        .thank-you-box {
+          width: 100%;
+          padding: 20px;
+        }
+      }
+    </style>
+    <div class="thank-you-box">
+      <h2>🎉 Order Placed Successfully!</h2>
+      <p>Your order has been received and is being processed.</p>
+          <div class="thank-you-buttons">
+        <a href="https://vinaykumar1332.github.io/Rice_Cart/myOrders.html">🔍 Track Order</a>
+        <a href="https://vinaykumar1332.github.io/Rice_Cart/product.html">Continue Shopping</a>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  form.reset();
+  fields.latitude.value = fields.longitude.value = fields.mapsUrl.value = fields.productId.value = "";
+  locationCaptured = false;
+}
+
 
     document.getElementById('showTerms').addEventListener('click', function (e) {
   e.preventDefault();

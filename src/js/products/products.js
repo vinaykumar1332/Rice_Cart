@@ -83,8 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await originalFetch(...args);
       const endTime = performance.now();
-      if (endTime - startTime > 4000) {
-        showToast('Slow API response detected');
+      if (endTime - startTime > 9000) {
+        showToast('slow Network detected');
       }
       return response;
     } catch (error) {
@@ -115,7 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     searchFilterContainer.innerHTML = `
       <input id="search-input" type="text" placeholder="Search by brand name..." />
       <select id="type-filter">
-        <option value="">All Types</option>
+        <option value="">Select Type</option>
+        <option value="">All</option>
       </select>
     `;
     productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
