@@ -1,4 +1,4 @@
-// Existing code for mobile input and clear icon
+// Existing code for mobile input and clear icon (unchanged)
 const mobileInput = document.getElementById('mobile');
 const clearIcon = document.querySelector('.clear-icon');
 mobileInput.addEventListener('input', function (e) {
@@ -13,7 +13,7 @@ clearIcon.addEventListener('click', function () {
   document.getElementById('filterTags').innerHTML = '';
 });
 
-// Check for saved mobile number on page load
+// Check for saved mobile number on page load (unchanged)
 window.addEventListener('load', function () {
   const savedMobile = localStorage.getItem('savedMobile');
   if (savedMobile) {
@@ -94,29 +94,29 @@ async function searchOrder() {
             let rawData = '';
             if (allFieldsNA) {
               rawData = `
-                                <p><strong>Raw Order Data (for debugging):</strong></p>
-                                <pre class="raw-data">${JSON.stringify(order, null, 2)}</pre>
-                            `;
+                <p><strong>Raw Order Data (for debugging):</strong></p>
+                <pre class="raw-data">${JSON.stringify(order, null, 2)}</pre>
+              `;
             }
 
             output += `
-                            <div class="order" id="downloadDiv-${index}>
-                            <button class="download-btn" data-index="${index}" title="Download Order Details">
-                                <i class="fa-solid fa-file-pdf"></i>
-                            </button>
-                                <h3>Order ${index + 1}</h3>
-                                <p><strong>Ordered On:</strong> ${timestamp}</p>
-                                <p><strong>Name:</strong> ${name}</p>
-                                <p><strong>Rice Brand:</strong> ${riceBrand}</p>
-                                <p><strong>Weight Per Bag:</strong> ${weightPerBag}</p>
-                                <p><strong>Total Bags:</strong> ${totalBags}</p>
-                                <p><strong>Total Price:</strong> ${totalPrice}</p>
-                                <p class="address-none"><strong>Address:</strong> ${address}</p>
-                                <p class="gps-location"><strong>GPS Location:</strong> <a href="${gpsLocation}" target="_blank" rel="noopener noreferrer">View Location</a></p>
-                                <p class="${statusClass}"><strong>Status:</strong> ${orderStatus}</p>
-                                ${rawData}
-                            </div>
-                        `;
+              <div class="order" id="downloadDiv-${index}">
+                <button class="download-btn" data-index="${index}" title="Download Order Details">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </button>
+                <h3>Order ${index + 1}</h3>
+                <p><strong>Ordered On:</strong> <span>${timestamp}</span></p>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Rice Brand:</strong> ${riceBrand}</p>
+                <p><strong>Weight Per Bag:</strong> ${weightPerBag}</p>
+                <p><strong>Total Bags:</strong> ${totalBags}</p>
+                <p><strong>Total Price:</strong> ${totalPrice}</p>
+                <p class="address-none"><strong>Address:</strong> ${address}</p>
+                <p class="gps-location"><strong>GPS Location:</strong> <a href="${gpsLocation}" target="_blank" rel="noopener noreferrer">View Location</a></p>
+                <p class="${statusClass}"><strong>Status:</strong> ${orderStatus}</p>
+                ${rawData}
+              </div>
+            `;
           });
           resultDiv.innerHTML = output || '<p class="error"><i class="fa-solid fa-face-frown"></i> No orders found for this status.</p>';
         });
@@ -134,98 +134,89 @@ async function searchOrder() {
   }
 }
 
-// Add event listener for PDF download with loading indicator
-// Add event listener for PDF download with loading indicator
+// Updated PDF Generation Code
 document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('click', (event) => {
+  document.addEventListener('click', async (event) => {
     if (event.target.closest('.download-btn')) {
       const target = event.target.closest('.download-btn');
       const index = target.getAttribute('data-index');
       const orderDiv = document.querySelector(`#downloadDiv-${index}`);
 
       if (!orderDiv) {
-        console.error(`Order div with ID downloadDiv-${index} not found.`);
+        alert('Order content not found.');
         return;
       }
 
-      // Create loader
-      const loader = document.createElement('div');
-      loader.className = 'pdf-loader';
-      loader.innerHTML = '<span>Generating PDF...</span>'; // Avoid Font Awesome for loader
-      orderDiv.appendChild(loader);
+      const clone = orderDiv.cloneNode(true);
 
-      // Disable to prevent multiple clicks
-      target.style.pointerEvents = 'none';
+      // Remove button from clone
+      const btn = clone.querySelector('.download-btn');
+      if (btn) btn.remove();
 
-      // Clone the order div to avoid modifying the original
-      const orderClone = orderDiv.cloneNode(true);
+      // Replace GPS link with plain text
+      const gpsLink = clone.querySelector('.gps-location a');
+      if (gpsLink) {
+        const text = gpsLink.textContent;
+        gpsLink.replaceWith(text);
+      }
 
-      // Remove unwanted elements from the clone
-      const downloadBtn = orderClone.querySelector('.download-btn');
-      if (downloadBtn) downloadBtn.remove();
-      const clonedLoader = orderClone.querySelector('.pdf-loader');
-      if (clonedLoader) clonedLoader.remove();
-      const icons = orderClone.querySelectorAll('i.fa-solid');
-      icons.forEach(icon => icon.remove());
-      const gpsLink = orderClone.querySelector('.gps-location');
-      if (gpsLink) gpsLink.innerHTML = '<strong>GPS Location:</strong> [Link Removed for PDF]'; // Replace link
+      // --- 🧩 Create wrapper with header + clone + footer ---
+      const wrapper = document.createElement('div');
+      wrapper.style.background = '#fff';
+      wrapper.style.color = '#000';
+      wrapper.style.fontFamily = 'Arial, sans-serif';
+      wrapper.style.fontSize = '14px';
+      wrapper.style.padding = '30px';
+      wrapper.style.width = '100%';
+      wrapper.style.boxSizing = 'border-box';
 
-      // Apply PDF-friendly styles
-      orderClone.style.position = 'static';
-      orderClone.style.display = 'block';
-      orderClone.style.width = '100%';
-      orderClone.style.background = '#fff';
-      orderClone.style.padding = '20px';
-      orderClone.style.boxSizing = 'border-box';
-      orderClone.style.fontFamily = 'Arial, sans-serif';
-      orderClone.style.color = '#000';
-      orderClone.style.overflow = 'visible';
+      // Header
+      const header = document.createElement('div');
+      header.innerHTML = `
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fin.pinterest.com%2Fpin%2Frice-png-and-clipart-images-with-transparent-background--740631101235829758%2F&psig=AOvVaw1AStE1nAQjl6ieyBPfuiOb&ust=1750668149610000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCPDg-prRhI4DFQAAAAAdAAAAABAE" alt="Logo" style="height:60px; margin-bottom:10px;" />
+          <h2 style="margin:0; font-size:20px;">Sri Lakshmi Rice Distributors</h2>
+          <p style="margin:0;">Hyderabad, Telangana - 500081</p>
+          <p style="margin:0;">Phone: +91-9876543210 | Email: support@slricedistributors.com</p>
+          <hr style="margin:20px 0;" />
+        </div>
+      `;
 
-      // Style child elements
-      const children = orderClone.querySelectorAll('p, h3');
-      children.forEach(child => {
-        child.style.color = '#000';
-        child.style.margin = '5px 0';
-        child.style.fontFamily = 'Arial, sans-serif';
-      });
+      // Footer
+      const footer = document.createElement('div');
+      footer.innerHTML = `
+        <hr style="margin:20px 0;" />
+        <p style="text-align:center; font-size:13px;">Thank you for your order! Visit us at <strong>srilakshmirice.com</strong></p>
+      `;
 
-      // Temporarily append clone off-screen
-      orderClone.style.position = 'absolute';
-      orderClone.style.left = '-9999px';
-      document.body.appendChild(orderClone);
+      wrapper.appendChild(header);
+      wrapper.appendChild(clone);
+      wrapper.appendChild(footer);
 
-      const opt = {
-        margin: 0.5,
-        filename: `order-${parseInt(index) + 1}-details.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: true, // Enable for debugging
-        },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
+      // Append to DOM off-screen
+      const hiddenContainer = document.createElement('div');
+      hiddenContainer.style.position = 'absolute';
+      hiddenContainer.style.left = '-9999px';
+      hiddenContainer.appendChild(wrapper);
+      document.body.appendChild(hiddenContainer);
 
-      // Delay to ensure DOM rendering
-      setTimeout(() => {
-        console.log('Cloned content for PDF:', orderClone.innerHTML); // Debug
-        html2pdf()
-          .from(orderClone)
-          .set(opt)
-          .save()
-          .then(() => {
-            loader.remove();
-            target.style.pointerEvents = 'auto';
-            orderClone.remove();
+      try {
+        await html2pdf()
+          .set({
+            margin: 0.5,
+            filename: `order-${parseInt(index) + 1}-details.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
           })
-          .catch((error) => {
-            console.error('Error generating PDF:', error);
-            loader.remove();
-            target.style.pointerEvents = 'auto';
-            orderClone.remove();
-            alert('Error generating PDF. Please try again.');
-          });
-      }, 200); 
+          .from(wrapper)
+          .save();
+      } catch (error) {
+        console.error('PDF generation failed:', error);
+        alert('Failed to generate PDF. Try again.');
+      } finally {
+        document.body.removeChild(hiddenContainer);
+      }
     }
   });
 });

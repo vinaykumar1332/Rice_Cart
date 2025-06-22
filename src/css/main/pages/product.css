@@ -34,6 +34,12 @@ h1 {
     }
   }
 }
+#productsContainer:has(> :only-child),
+#productsContainer:has(> :nth-child(2):last-child) {
+  grid-template-columns: repeat(auto-fit, minmax(320px, auto));
+  justify-content: center;
+}
+
 
 @media (max-width: 991px) {
   #productsContainer {
@@ -297,7 +303,7 @@ h1 {
   position: fixed;
   bottom: 0;
   left: 50%;
-  width: 27%;
+  width: 33%;
   transform:  translateY(100%); /* Center horizontally and start off-screen */
   background: var(--color-white);
   border-top: 2px solid #e0e0e0;
@@ -530,7 +536,7 @@ h1 {
 }
 
 .product-type {
-  font-size: 1rem;
+  font-size: 0.80rem;
   color: #777;
   margin-bottom: 10px;
   text-transform: capitalize;
@@ -546,11 +552,11 @@ h1 {
 /* --- Search & Filter --- */
 #search-filter-container {
   display: flex;
-  gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
   margin: 2rem 0;
   justify-content: center;
+  padding: 0 1rem; /* Added padding for better spacing on smaller screens */
 }
 
 .search-box,
@@ -558,48 +564,88 @@ h1 {
   position: relative;
   display: flex;
   align-items: center;
+  width: auto; /* Ensure boxes don't stretch unnecessarily */
 }
 
 .search-box i,
 .filter-box i {
   position: absolute;
   left: 12px;
-  color: #888;
-  font-size: 1rem;
+  color: #6b7280; /* Updated to a modern gray for better contrast */
+  font-size: 1.1rem; /* Slightly larger icon for visibility */
+  pointer-events: none; /* Prevent icons from interfering with input */
 }
 
 #search-input,
 #type-filter {
-  padding: 10px 12px 10px 36px;
-  border: 1.5px solid var(--GoGreen);
-  border-radius: 8px;
+  padding: 12px 16px 12px 40px; /* Adjusted padding for larger icons */
+  border: 1.5px solid var(--GoGreen, #22c55e); /* Fallback color if variable undefined */
+  border-radius: 10px; /* Slightly larger radius for smoother look */
   font-size: 1rem;
   outline: none;
-  min-width: 220px;
-  transition: border-color 0.3s ease;
+  min-width: 240px; /* Slightly wider for better usability */
+  transition: all 0.3s ease; /* Smooth transition for all changes */
+  background-color: #f9fafb; /* Light background for input fields */
+  color: #111827; /* Dark text for readability */
 }
-
+#type-filter{
+   padding: 12px 16px 12px 16px;
+   min-width: 150px;
+   background-color: #e0ede5;
+}
+@media (min-width: 556px) {
+#search-input{
+  border-right: none;
+}
+#type-filter {
+  position: relative;
+  right:15px; /* Adjusted to align with search input */
+  width: auto; /* Allow width to adjust based on content */
+  border-radius: var(--padding-s); /* Rounded corners for right side */
+}
+}
 #search-input:focus,
 #type-filter:focus {
   border-color: #22c55e;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15); /* Softer, larger shadow */
+  background-color: #fff; /* White background on focus */
+}
+
+/* Ensure dropdown has consistent styling */
+#type-filter {
+  appearance: none; /* Remove default dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); /* Custom arrow */
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 1.2rem;
+  padding-right: 40px; /* Space for custom arrow */
+}
+
+/* Hover effects for interactivity */
+#search-input:hover,
+#type-filter:hover {
+  border-color: #16a34a; /* Darker green on hover */
+  background-color: #fff;
 }
 
 @media (max-width: 600px) {
   #search-filter-container {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem; /* Consistent gap in mobile view */
+    padding: 0 0.5rem;
   }
 
-  #search-input {
-    width: 80%;
+  #search-input,
+  #type-filter {/* Full width for mobile */
+    min-width: 0; /* Override min-width for mobile */
+    font-size: 0.95rem; /* Slightly smaller font for mobile */
   }
 
-  #type-filter {
-    width: 50%;
+  .search-box,
+  .filter-box {
+    width: 100%; /* Ensure boxes take full width */
   }
 }
-
 
 .actions.action-visible {
   display: flex;
