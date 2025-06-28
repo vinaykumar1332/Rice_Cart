@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   monitorNetwork();
-  setInterval(monitorNetwork, 10000);
+  setInterval(monitorNetwork, 50000);
 
   const originalFetch = window.fetch;
   window.fetch = async function (...args) {
