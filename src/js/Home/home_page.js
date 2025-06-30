@@ -1,13 +1,16 @@
- window.addEventListener('scroll', () => {
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-      const rect = el.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      if (rect.top <= windowHeight - 150) {
-        el.style.opacity = 1;
-        el.style.transform = 'translateY(0)';
-      }
-    });
-  });
+let slideIndex = 0;
+const slides = document.querySelectorAll('.slide');
 
-  // Trigger on load
-  window.dispatchEvent(new Event('scroll'));
+function showSlide(index) {
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('active', i === index);
+  });
+}
+
+function autoSlide() {
+  slideIndex = (slideIndex + 1) % slides.length;
+  showSlide(slideIndex);
+}
+
+setInterval(autoSlide, 5000); // Change every 5 seconds
+showSlide(slideIndex);
