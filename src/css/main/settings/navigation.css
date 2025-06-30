@@ -63,7 +63,7 @@ body {
       opacity: 0;
       transform: scaleX(0);
       transform-origin: left;
-      animation: underlineFade 10s ease-in-out infinite;
+      animation: underlineFade 15s ease-in infinite;
     }
   }
 
