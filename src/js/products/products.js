@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mode: 'no-cors',
         cache: 'no-store'
       });
+      console.log(apiUrl);
       const endTime = performance.now();
       const latency = endTime - startTime;
       if (latency > 4000) {
@@ -479,47 +480,90 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'orders.html';
   });
 
-  async function fetchProducts() {
-    showSkeletons(MIN_SKELETON_COUNT);
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      controller.abort();
-      showToast('API response is too slow');
-      showErrorMessage('API took too long to respond. Please try again.');
-    }, API_TIMEOUT);
+async function fetchProducts() {
+  showSkeletons(MIN_SKELETON_COUNT);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+    showToast('API response is too slow', 'error');
+    showErrorMessage('API took too long to respond. Please try again.');
+  }, API_TIMEOUT);
 
-    try {
-      const res = await fetch(
-        'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec',
-        { signal: controller.signal }
-      );
-      clearTimeout(timeoutId);
-      const data = await res.json();
-      products = data.map(row => ({
-        id: row.ID,
-        brand: row.Brand,
-        name: row.Name,
-        type: row.Type,
-        quantities: String(row.Quantity || '')
-          .split(',')
-          .map(q => parseInt(q.trim()))
-          .filter(q => !isNaN(q) && q > 0),
-        pricePerKg: parseFloat(row.PricePerKg),
-        status: row.Status?.trim?.() || 'Inactive'
-      }));
-      filteredProducts = [...products];
-      populateTypeFilter();
-      removeSkeletons();
-      displayAllProducts();
-      updateFilteredCount();
-      toggleCheckout();
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.error('Error loading products:', err);
-      showToast('Failed to load products');
-      showErrorMessage();
+  try {
+    const res = await fetch(
+      'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec',
+      { signal: controller.signal }
+    );
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
     }
+
+    const data = await res.json();
+
+    // Validate data
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('No valid product data received');
+    }
+
+    // Map and sanitize data
+    products = data.map(row => ({
+      id: String(row.ID || ''), // Ensure string
+      brand: String(row.Brand || 'Unknown'),
+      name: String(row.Name || 'N/A'),
+      type: String(row.Type || 'N/A'),
+      quantities: String(row.Quantity || '')
+        .split(',')
+        .map(q => parseInt(q.trim()))
+        .filter(q => !isNaN(q) && q > 0),
+      pricePerKg: parseFloat(row.PricePerKg) || 0,
+      status: String(row.Status || 'Inactive').trim()
+    }));
+
+    // Log data for debugging
+    console.log('Processed products:', products);
+
+    // Save to sessionStorage
+    try {
+      const productsString = JSON.stringify(products);
+      const dataSize = new Blob([productsString]).size;
+      console.log('Data size to save:', dataSize, 'bytes');
+      if (dataSize > 5 * 1024 * 1024) { // 5 MB limit
+        throw new Error('Data too large for sessionStorage');
+      }
+      sessionStorage.setItem('products', productsString);
+      console.log('Products saved to sessionStorage');
+      showToast('Products saved to session storage', 'success');
+
+      // Verify storage
+      const storedProducts = JSON.parse(sessionStorage.getItem('products'));
+      console.log('Retrieved from sessionStorage:', storedProducts);
+    } catch (error) {
+      console.error('Error saving to sessionStorage:', error);
+      showToast(`Failed to save products: ${error.message}`, 'error');
+    }
+
+    filteredProducts = [...products];
+    console.log('Products loaded:', products);
+
+    if (products.length === 0) {
+      showErrorMessage('No products available at the moment.');
+      return;
+    }
+
+    populateTypeFilter();
+    removeSkeletons();
+    displayAllProducts();
+    updateFilteredCount();
+    toggleCheckout();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    console.error('Error loading products:', err);
+    showToast(`Failed to load products: ${err.message}`, 'error');
+    showErrorMessage(`Failed to load products: ${err.message}`);
   }
+}
 
   function toggleActionVisible() {
     const actionDivs = document.querySelectorAll('.actions');
