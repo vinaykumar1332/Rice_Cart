@@ -1,3 +1,11 @@
+ :root {
+      --color-white: #fff;
+      --color-primary: #007bff;
+      --color-primary-dark: #0056b3;
+      --color-error: #dc3545;
+      --color-success: #28a745;
+    }
+
 /* Global Section */
 .hero-slider {
   width: 100%;
@@ -88,6 +96,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   animation: pulse 2s infinite;
+  z-index: 999;
 }
 
 .hero-content a:hover {
@@ -247,4 +256,213 @@
       
   }
 
-  
+  .carousel-section {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px 10px;
+      position: relative;
+      border-radius: 12px;
+ .carousel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 15px;
+}
+
+.carousel-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--Primary-Text);
+  transform: translateY(6px);
+  animation: fadeInTitle 0.5s ease forwards;
+}
+
+.view-all-btn {
+  display: inline-block;
+  background: var(--Accent-Yellow);
+  color:var(--color-black, #000);
+  padding: 14px 28px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: var(--font-weight-s);
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  z-index: 999;
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+}
+.view-all-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--color-white, #fff);
+  @media (max-width: 768px) {
+    background-color: var(--primary-color);
+    color: var(--color-white, #fff);
+  }
+}
+
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 280px;
+}
+
+.carousel-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 16px;
+  padding: 10px 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  width: 100%;
+}
+.carousel-container::-webkit-scrollbar {
+  display: none;
+}
+  .card-content{
+    text-align: center;
+  }
+.card, .skeleton-card {
+  min-width: 220px;
+  max-width: 240px;
+  background-color: var(--color-white, #fff);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 15px;
+  flex: 0 0 auto;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--Primary-Text);
+}
+
+.card p {
+  font-size: 0.95rem;
+  color: var(--Primary-Text);
+  margin: 5px 0;
+}
+
+/* Skeleton */
+.skeleton-img,
+.skeleton-text {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+.skeleton-img {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.skeleton-text {
+  height: 20px;
+  margin: 8px 0;
+}
+.skeleton-text.short {
+  width: 60%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Arrow Buttons */
+#prev-btn, #next-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--color-white);
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  z-index: 10;
+}
+#prev-btn:hover,
+#next-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+#prev-btn:disabled,
+#next-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#prev-btn {
+  left: -22px;
+}
+#next-btn {
+  right: -22px;
+}
+/* Animation */
+@keyframes fadeInTitle {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .carousel-section {
+    margin: 0;
+    padding: 15px 5px;
+    width: 100%;
+  }
+  .carousel-header {
+    gap: 8px;
+  }
+  .carousel-title {
+    font-size: 1.5rem;
+  }
+  .carousel-container {
+    gap: 10px;
+  }
+  .card, .skeleton-card {
+    min-width: 160px;
+    max-width: 220px;
+  }
+  .card img, .skeleton-img {
+    height: 120px;
+  }
+
+  #prev-btn, #next-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+    top: 42%;
+  }
+  #prev-btn {
+    left: 0;
+  }
+  #next-btn {
+    right: 0;
+  }
+}
+}
