@@ -224,3 +224,21 @@ showSlide(slideIndex);
         showToast('Lost internet connection');
       });
     });
+ document.addEventListener('DOMContentLoaded', () => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray('.timeline-step').forEach(step => {
+      gsap.to(step, {
+        scrollTrigger: {
+          trigger: step,
+          start: 'top 80%',
+          toggleActions: 'play none none reverse',
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+        stagger: 0.2,
+      });
+    });
+  });
