@@ -80,14 +80,14 @@
             <a href="./product.html">Shop Now</a>
           </div>
         </div>
-        <div class="slide" style="background-image: url('./src/assets/BG/bg3.jpg');">
+        <div class="slide" style="background-image: url('./src/assets/BG/homepageImage2.webp');">
           <div class="hero-content">
             <h1>Fresh Harvest</h1>
             <p>Straight from the fields to your home.</p>
             <a href="./product.html">Explore</a>
           </div>
         </div>
-        <div class="slide" style="background-image: url('./src/assets/BG/bg2.jpg');">
+        <div class="slide" style="background-image: url('./src/assets/BG/bg3.jpg');">
           <div class="hero-content">
             <h1>100% Organic Rice</h1>
             <p>Clean, healthy, and affordable.</p>
@@ -96,7 +96,21 @@
         </div>
       </div>
     </section>
-    <section class="how-it-works-section">
+    <section class="carousel-section" role="region" aria-label="Trending Products Carousel">
+      <div class="carousel-header">
+        <h2 class="carousel-title">Trending Products</h2>
+        <a href="./product.html" class=" view-all-btn">View All</a>
+      </div>
+
+      <div class="carousel-wrapper">
+        <button id="prev-btn" aria-label="Previous Slide">◄</button>
+        <div class="carousel-container" id="carousel" tabindex="0">
+          <!-- Cards or skeletons will be inserted here -->
+        </div>
+        <button id="next-btn" aria-label="Next Slide">►</button>
+      </div>
+    </section>
+     <section class="how-it-works-section">
       <h2 class="section-title">How It Works</h2>
       <div class="timeline">
         <div class="timeline-step">
@@ -122,20 +136,6 @@
         </div>
       </div>
     </div>
-    </section>
-    <section class="carousel-section" role="region" aria-label="Trending Products Carousel">
-      <div class="carousel-header">
-        <h2 class="carousel-title">Trending Products</h2>
-        <a href="./product.html" class=" view-all-btn">View All</a>
-      </div>
-
-      <div class="carousel-wrapper">
-        <button id="prev-btn" aria-label="Previous Slide">◄</button>
-        <div class="carousel-container" id="carousel" tabindex="0">
-          <!-- Cards or skeletons will be inserted here -->
-        </div>
-        <button id="next-btn" aria-label="Next Slide">►</button>
-      </div>
     </section>
     <section class="card-sec-3-container-fluid">
       <div class="card-sec-3 mt-5 container">
@@ -241,12 +241,11 @@
   </footer>
 </body>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" defer></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" defer></script>
 <script src="src/js/main/settings/navigation.js"></script>
 <script src="src/js/Home/home_Page_min.js"></script>
 <!-- GSAP Core -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
 
 </html>
