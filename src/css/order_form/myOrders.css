@@ -285,3 +285,10 @@ p.status-unknown {
 .download-btn:hover {
   background: #0056b3;
 }
+
+/* Ensure elements are PDF-friendly */
+.order p, .order h3 {
+  color: #000 !important;
+  font-family: Arial, sans-serif !important;
+  margin: 5px 0;
+}
