@@ -225,20 +225,57 @@ showSlide(slideIndex);
       });
     });
  document.addEventListener('DOMContentLoaded', () => {
-    gsap.registerPlugin(ScrollTrigger);
+    const options = {
+      threshold: 0.2,
+    };
 
-    gsap.utils.toArray('.timeline-step').forEach(step => {
-      gsap.to(step, {
-        scrollTrigger: {
-          trigger: step,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-        },
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power3.out',
-        stagger: 0.2,
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 200); // delay effect
+        }
       });
-    });
+    }, options);
+
+    const steps = document.querySelectorAll('.timeline-step');
+    const title = document.querySelector('.section-title');
+
+    steps.forEach((step) => observer.observe(step));
+    if (title) observer.observe(title);
   });
+  const handleKeyUp = () => {
+  const editor = editorRef.current.getEditor();
+  const range = editor.getSelection();
+  if (!range || range.index === 0) {
+    setShowSuggestions(false);
+    return;
+  }
+
+  const textBeforeCursor = editor.getText(0, range.index);
+  const lastAtIndex = textBeforeCursor.lastIndexOf('@');
+
+  if (lastAtIndex !== -1 && range.index > lastAtIndex) {
+    const query = textBeforeCursor.slice(lastAtIndex + 1, range.index).toLowerCase();
+
+    const mentionValues = getMentionValues();
+    const filtered = mentionValues.filter((item) =>
+      item.label.toLowerCase().includes(query)
+    );
+
+    if (filtered.length > 0) {
+      setSuggestions(filtered);
+      const coords = getCaretCoordinates();
+      if (coords) {
+        setPopupPos(coords);
+        setShowSuggestions(true);
+        setCursorIndex(range.index);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  } else {
+    setShowSuggestions(false);
+  }
+};
