@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const endTime = performance.now();
       const latency = endTime - startTime;
       if (latency > 4000) {
-        
+        showToast('Slow network detected');
         return false;
       }
       return true;
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await originalFetch(...args);
       const endTime = performance.now();
       if (endTime - startTime > 9000) {
-       return;
+        showToast('slow Network detected');
       }
       return response;
     } catch (error) {
@@ -485,7 +485,8 @@ async function fetchProducts() {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
-    showErrorMessage('Application took too long to respond. Please try again.');
+    showToast('API response is too slow', 'error');
+    showErrorMessage('API took too long to respond. Please try again.');
   }, API_TIMEOUT);
 
   try {
