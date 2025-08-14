@@ -92,15 +92,20 @@
      display: inline-block;
      background: var(--Accent-Yellow);
      color: var(--color-black, #000);
-     padding: 14px 28px;
+     padding: 14px 22px;
      border-radius: 10px;
      text-decoration: none;
-     font-weight: 600;
-     font-size: 1.1rem;
+     font-weight: var(--font-weight-s);
+     font-size: 0.96rem;
      transition: all 0.3s ease;
      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
      animation: pulse 2s infinite;
      z-index: 999;
+
+     @media (max-width: 576px) {
+       padding: 12px 18px;
+       font-size: 0.8rem;
+     }
    }
 
    .hero-content a:hover {
@@ -296,7 +301,7 @@
 
    .card,
    .skeleton-card {
-     min-width: 220px;
+     min-width: 222px;
      max-width: 240px;
      background-color: var(--color-white, #fff);
      border-radius: 16px;
