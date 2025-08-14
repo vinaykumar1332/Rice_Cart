@@ -1,12 +1,45 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const toastContainer = document.createElement('div');
-  toastContainer.style.position = 'fixed';
-  toastContainer.style.top = '40%';
-  toastContainer.style.right = '20px';
-  toastContainer.style.zIndex = '1000';
-  document.body.appendChild(toastContainer);
+// ==============================
+// Optimized Products + Cart App
+// ==============================
+(() => {
+  // ------------------------------
+  // Config
+  // ------------------------------
+  const API_URL = 'https://rice-cart-ten.vercel.app/api/products';
+  const API_TIMEOUT = 5000;                 // ms
+  const LATENCY_SLOW_FETCH_MS = 9000;       // ms
+  const PING_SLOW_MS = 4000;                // ms (for checkApiLatency)
+  const MONITOR_INTERVAL_MS = 50000;        // ms
+  const MIN_SKELETON_COUNT = 10;
+  const CHUNK_SIZE = 40;                    // how many cards to render at once (virtualized rendering)
+  const STORAGE_KEY = 'products:v1';        // bump version if product shape changes
+  const INDEXED_DB = { name: 'productsDB', store: 'productsStore', version: 1 };
 
-  function showToast(message, type = 'error') {
+  // ------------------------------
+  // Utility: Debounce
+  // ------------------------------
+  function debounce(fn, wait = 250) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), wait);
+    };
+  }
+
+  // ------------------------------
+  // Toasts
+  // ------------------------------
+  const toastContainer = (() => {
+    const c = document.createElement('div');
+    c.style.position = 'fixed';
+    c.style.top = '40%';
+    c.style.right = '20px';
+    c.style.zIndex = '1000';
+    document.body.appendChild(c);
+    return c;
+  })();
+
+  function showToast(message, type = 'error', duration = 3000) {
     const toast = document.createElement('div');
     toast.style.padding = '12px 20px';
     toast.style.marginBottom = '40%';
@@ -18,15 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
     toast.style.transition = 'opacity 0.3s ease-in-out';
     toast.textContent = message;
     toastContainer.appendChild(toast);
-    setTimeout(() => {
-      toast.style.opacity = '1';
-    }, 100);
+    requestAnimationFrame(() => (toast.style.opacity = '1'));
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    }, duration);
   }
 
+  // ------------------------------
+  // Network Monitoring
+  // ------------------------------
   function checkNetworkStatus() {
     if (!navigator.onLine) {
       showToast('No internet connection');
@@ -36,64 +70,53 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function checkApiLatency() {
-    const apiUrl = 'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec'; // Replace with actual endpoint
     try {
-      const startTime = performance.now();
-      await fetch(apiUrl, {
-        mode: 'no-cors',
-        cache: 'no-store'
-      });
-      console.log(apiUrl);
-      const endTime = performance.now();
-      const latency = endTime - startTime;
-      if (latency > 4000) {
-        showToast('Slow network detected');
+      const start = performance.now();
+      await fetch(API_URL, { mode: 'no-cors', cache: 'no-store' });
+      const latency = performance.now() - start;
+      if (latency > PING_SLOW_MS) {
         return false;
       }
       return true;
-    } catch (error) {
+    } catch {
       showToast('Network error: Unable to reach server');
       return false;
     }
   }
 
-  window.addEventListener('online', () => {
-    showToast('Back online', 'success');
-  });
-
-  window.addEventListener('offline', () => {
-    showToast('Lost internet connection');
-  });
+  window.addEventListener('online', () => showToast('Back online', 'success'));
+  window.addEventListener('offline', () => showToast('Lost internet connection'));
 
   async function monitorNetwork() {
-    if (checkNetworkStatus()) {
-      await checkApiLatency();
-    }
+    if (checkNetworkStatus()) await checkApiLatency();
   }
-
   monitorNetwork();
-  setInterval(monitorNetwork, 50000);
+  setInterval(monitorNetwork, MONITOR_INTERVAL_MS);
 
-  const originalFetch = window.fetch;
+  // ------------------------------
+  // Safe fetch wrapper with latency toast
+  // ------------------------------
+  const originalFetch = window.fetch.bind(window);
   window.fetch = async function (...args) {
     if (!checkNetworkStatus()) {
       showToast('No network connection');
       return Promise.reject(new Error('No network connection'));
     }
-    const startTime = performance.now();
+    const start = performance.now();
     try {
-      const response = await originalFetch(...args);
-      const endTime = performance.now();
-      if (endTime - startTime > 9000) {
-        showToast('slow Network detected');
-      }
-      return response;
-    } catch (error) {
+      const res = await originalFetch(...args);
+      const elapsed = performance.now() - start;
+      if (elapsed > LATENCY_SLOW_FETCH_MS) showToast('Slow network detected');
+      return res;
+    } catch (err) {
       showToast('API call failed');
-      throw error;
+      throw err;
     }
   };
 
+  // ------------------------------
+  // DOM Elements
+  // ------------------------------
   const productsContainer = document.getElementById('productsContainer');
   const checkoutBtn = document.getElementById('go-to-dashboard');
   const dashboardOverlay = document.getElementById('dashboard-overlay');
@@ -102,82 +125,96 @@ document.addEventListener('DOMContentLoaded', () => {
   const modifyBtn = document.getElementById('modify-cart');
   const closeOverlayBtn = document.getElementById('close-overlay');
 
+  if (!productsContainer) {
+    console.error('Missing #productsContainer in DOM');
+  }
+
+  // ------------------------------
+  // State
+  // ------------------------------
   let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
   let products = [];
   let filteredProducts = [];
   let searchTerm = '';
   let selectedType = '';
-  const API_TIMEOUT = 5000;
-  const MIN_SKELETON_COUNT = 10;
+  let renderIndex = 0; // for chunked rendering
 
-  function createSearchFilter() {
-    const searchFilterContainer = document.createElement('div');
-    searchFilterContainer.id = 'search-filter-container';
-    searchFilterContainer.innerHTML = `
-      <input id="search-input" type="text" placeholder="Search by brand name..." />
-      <select id="type-filter">
-        <option value="">Select Type</option>
-        <option value="">All</option>
-      </select>
-    `;
-    productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
+  // Pre-scan/normalize helper: add lowercase search fields once for faster filtering
+  function normalizeProducts(list) {
+    return list.map(row => {
+      const id = String(row.ID || row.id || '');
+      const brand = String(row.Brand || row.brand || 'Unknown');
+      const name = String(row.Name || row.name || 'N/A');
+      const type = String(row.Type || row.type || 'N/A');
+      const quantities = String(row.Quantity || row.quantities || '')
+        .toString()
+        .split(',')
+        .map(q => parseInt(String(q).trim()))
+        .filter(q => !isNaN(q) && q > 0);
+      const pricePerKg = parseFloat(row.PricePerKg ?? row.pricePerKg) || 0;
+      const status = String(row.Status || row.status || 'Inactive').trim();
 
-    const countContainer = document.createElement('div');
-    countContainer.id = 'count-container';
-    countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
-    productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
-
-    const searchInput = document.getElementById('search-input');
-    const typeFilter = document.getElementById('type-filter');
-
-    let debounceTimeout;
-    searchInput?.addEventListener('input', () => {
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(() => {
-        searchTerm = searchInput.value.trim().toLowerCase();
-        filterProducts();
-      }, 300);
-    });
-
-    typeFilter?.addEventListener('change', () => {
-      selectedType = typeFilter.value;
-      filterProducts();
+      return {
+        id,
+        brand,
+        name,
+        type,
+        quantities,
+        pricePerKg,
+        status,
+        _s_brand: brand.toLowerCase(),
+        _s_name: name.toLowerCase(),
+        _s_type: type.toLowerCase(),
+      };
     });
   }
 
-  function populateTypeFilter() {
-    const typeFilter = document.getElementById('type-filter');
-    const uniqueTypes = [...new Set(products.map(p => p.type))].sort();
-    uniqueTypes.forEach(type => {
-      const option = document.createElement('option');
-      option.value = type;
-      option.textContent = type;
-      typeFilter?.appendChild(option);
+  // ------------------------------
+  // IndexedDB Fallback (for large datasets)
+  // ------------------------------
+  function idbOpen() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(INDEXED_DB.name, INDEXED_DB.version);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(INDEXED_DB.store)) {
+          db.createObjectStore(INDEXED_DB.store);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function idbSet(key, value) {
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(INDEXED_DB.store, 'readwrite');
+      tx.objectStore(INDEXED_DB.store).put(value, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function idbGet(key) {
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(INDEXED_DB.store, 'readonly');
+      const req = tx.objectStore(INDEXED_DB.store).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error);
     });
   }
 
-  function filterProducts() {
-    filteredProducts = products.filter(product => {
-      const matchesSearch = searchTerm
-        ? product.name?.toLowerCase().includes(searchTerm) ||
-          product.brand?.toLowerCase().includes(searchTerm) ||
-          product.type?.toLowerCase().includes(searchTerm)
-        : true;
-      const matchesType = selectedType ? product.type === selectedType : true;
-      return matchesSearch && matchesType;
-    });
-
-    productsContainer.innerHTML = '';
-    updateFilteredCount();
-    displayAllProducts();
-  }
-
+  // ------------------------------
+  // UI Helpers
+  // ------------------------------
   function showSkeletons(count) {
     productsContainer.innerHTML = '';
-    for (let i = 0; i < Math.max(count, MIN_SKELETON_COUNT); i++) {
-      const skeleton = document.createElement('div');
-      skeleton.className = 'skeleton-card';
-      skeleton.innerHTML = `
+    const frag = document.createDocumentFragment();
+    const N = Math.max(count, MIN_SKELETON_COUNT);
+    for (let i = 0; i < N; i++) {
+      const s = document.createElement('div');
+      s.className = 'skeleton-card';
+      s.innerHTML = `
         <div class="skeleton-img"></div>
         <div class="skeleton-info">
           <div class="skeleton-name"></div>
@@ -185,8 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="skeleton-actions"></div>
         </div>
       `;
-      productsContainer?.appendChild(skeleton);
+      frag.appendChild(s);
     }
+    productsContainer.appendChild(frag);
   }
 
   function removeSkeletons() {
@@ -207,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function hardRefresh() {
     cart = [];
     sessionStorage.removeItem('cart');
-    window.location.reload(true);
+    window.location.reload();
   }
 
   function getLocalImage(product) {
@@ -231,8 +269,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card fade-in-on-scroll';
-    card.setAttribute('data-type', product.type || 'N/A');
-    card.setAttribute('data-id', product.id);
+    card.dataset.type = product.type || 'N/A';
+    card.dataset.id = product.id;
 
     const isOutOfStock = product.status !== 'Active';
     if (isOutOfStock) card.classList.add('inactive');
@@ -240,17 +278,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableWeights = product.quantities || [];
     let weightOptions = '';
     if (!isOutOfStock && availableWeights.length > 0) {
-      weightOptions = availableWeights
-        .map(weight => `<option value="${weight}">${weight} kg</option>`)
-        .join('');
+      weightOptions = availableWeights.map(w => `<option value="${w}">${w} kg</option>`).join('');
     }
 
     card.innerHTML = `
       <div class="product-card-image">
-        <img 
-          src="${getLocalImage(product)}" 
-          alt="${product.brand || 'Product'}" 
-          class="product-img" 
+        <img
+          src="${getLocalImage(product)}"
+          alt="${product.brand || 'Product'}"
+          class="product-img"
           loading="lazy"
           onerror="this.src='./src/assets/images/default.jpg';"
         >
@@ -259,17 +295,20 @@ document.addEventListener('DOMContentLoaded', () => {
         <h3 class="product-name">${product.brand || 'Unknown'}</h3>
         <p class="product-type">${product.name || 'N/A'}</p>
         <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Check price'}</p>
-        ${!isOutOfStock && weightOptions
-          ? `<div class="custom-select-container">
-               <div class="custom">
-                <select id="quantity-${product.id}" class="quantity-select">
-                  <option value="">Select kgs</option>
-                  ${weightOptions}
-                </select>
-               </div>
-             </div>
-             <p class="error-message" id="error-${product.id}" style="display: none; color: red;"></p>`
-          : ''
+        ${
+          !isOutOfStock && weightOptions
+            ? `
+              <div class="custom-select-container">
+                <div class="custom">
+                  <select id="quantity-${product.id}" class="quantity-select">
+                    <option value="">Select kgs</option>
+                    ${weightOptions}
+                  </select>
+                </div>
+              </div>
+              <p class="error-message" id="error-${product.id}" style="display:none;color:red;"></p>
+            `
+            : ''
         }
         <div class="actions">
           ${!isOutOfStock && weightOptions ? `<button class="add-to-cart" data-id="${product.id}">Add to Cart</button>` : ''}
@@ -295,23 +334,126 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    productsContainer?.appendChild(card);
+    return card;
   }
 
-  function displayAllProducts() {
+  function updateFilteredCount() {
+    let filteredCount = document.getElementById('filtered-count');
+    if (!filteredCount) {
+      const countContainer = document.createElement('div');
+      countContainer.id = 'count-container';
+      countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
+      productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
+      filteredCount = document.getElementById('filtered-count');
+    }
+    filteredCount.textContent = `${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''}`;
+  }
+
+  function populateTypeFilter() {
+    let typeFilter = document.getElementById('type-filter');
+    if (!typeFilter) return;
+    // Clear, then populate
+    typeFilter.innerHTML = `
+      <option value="">Select Type</option>
+      <option value="">All</option>
+    `;
+    const uniqueTypes = [...new Set(products.map(p => p.type))].sort();
+    const frag = document.createDocumentFragment();
+    uniqueTypes.forEach(type => {
+      const opt = document.createElement('option');
+      opt.value = type;
+      opt.textContent = type;
+      frag.appendChild(opt);
+    });
+    typeFilter.appendChild(frag);
+  }
+
+  // ------------------------------
+  // Chunked Rendering (Virtualized)
+  // ------------------------------
+  function resetRender() {
+    renderIndex = 0;
     productsContainer.innerHTML = '';
+  }
+
+  function renderNextChunk() {
+    if (renderIndex >= filteredProducts.length) return;
+    const end = Math.min(renderIndex + CHUNK_SIZE, filteredProducts.length);
+    const frag = document.createDocumentFragment();
+    for (let i = renderIndex; i < end; i++) {
+      const card = createProductCard(filteredProducts[i]);
+      frag.appendChild(card);
+    }
+    productsContainer.appendChild(frag);
+    renderIndex = end;
+    initScrollFadeInForNew();
+  }
+
+  function onScrollLoadMore() {
+    // Load next chunk when nearing bottom
+    const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 600;
+    if (nearBottom) renderNextChunk();
+  }
+
+  // ------------------------------
+  // Filtering
+  // ------------------------------
+  const runFilter = () => {
+    const q = searchTerm.trim().toLowerCase();
+    filteredProducts = products.filter(p => {
+      const matchesSearch = !q || p._s_name.includes(q) || p._s_brand.includes(q) || p._s_type.includes(q);
+      const matchesType = selectedType ? p.type === selectedType : true;
+      return matchesSearch && matchesType;
+    });
+
+    updateFilteredCount();
+    resetRender();
     if (filteredProducts.length === 0 && products.length > 0) {
       productsContainer.innerHTML = '<p class="Error"><i class="fa-regular fa-face-sad-tear"></i>No products found.</p>';
       return;
     }
-    filteredProducts.forEach(createProductCard);
+    renderNextChunk();
+  };
+
+  const debouncedFilter = debounce(runFilter, 250);
+
+  function createSearchFilter() {
+    // If already added, skip
+    if (document.getElementById('search-filter-container')) return;
+
+    const searchFilterContainer = document.createElement('div');
+    searchFilterContainer.id = 'search-filter-container';
+    searchFilterContainer.innerHTML = `
+      <input id="search-input" type="text" placeholder="Search by brand, product, or type..." />
+      <select id="type-filter">
+        <option value="">Select Type</option>
+        <option value="">All</option>
+      </select>
+    `;
+    productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
+
+    const countContainer = document.createElement('div');
+    countContainer.id = 'count-container';
+    countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
+    productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
+
+    const searchInput = document.getElementById('search-input');
+    const typeFilter = document.getElementById('type-filter');
+
+    searchInput?.addEventListener('input', () => {
+      searchTerm = searchInput.value;
+      debouncedFilter();
+    });
+
+    typeFilter?.addEventListener('change', () => {
+      selectedType = typeFilter.value;
+      debouncedFilter();
+    });
   }
 
-  function updateFilteredCount() {
-    const filteredCount = document.getElementById('filtered-count');
-    filteredCount.textContent = `${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''}`;
-  }
-
+  // ------------------------------
+  // Dashboard / Cart
+  // ------------------------------
   function updateDashboard() {
     if (cart.length === 0) {
       dashboardOverlay.classList.add('hidden');
@@ -342,6 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tbody = dashboardContent.querySelector('tbody');
     let total = 0;
+    const frag = document.createDocumentFragment();
 
     cart.forEach(item => {
       const subtotal = item.basePrice * item.weightPerBag * item.bags;
@@ -354,20 +497,23 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>₹${item.basePrice}</td>
         <td>₹${subtotal}</td>
       `;
-      tbody.appendChild(row);
+      frag.appendChild(row);
     });
 
+    tbody.appendChild(frag);
     dashboardContent.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
   }
 
   function toggleCheckout() {
+    if (!checkoutBtn) return;
     checkoutBtn.style.display = cart.length > 0 ? 'block' : 'none';
     checkoutBtn.textContent = `Checkout (${cart.length})`;
   }
 
-  // Event Listeners
+  // Click handling on product cards
   productsContainer?.addEventListener('click', (e) => {
     const target = e.target;
+    if (!(target instanceof HTMLElement)) return;
     const productId = target.dataset?.id;
     if (!productId) return;
 
@@ -375,18 +521,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!product) return;
 
     const card = target.closest('.product-card');
-    const quantitySelect = card.querySelector('.quantity-select');
-    const errorMessage = card.querySelector('.error-message');
+    const quantitySelect = card?.querySelector('.quantity-select');
+    const errorMessage = card?.querySelector('.error-message');
     const selectedWeight = parseInt(quantitySelect?.value);
 
     if (target.classList.contains('add-to-cart')) {
       if (!selectedWeight) {
-        errorMessage.textContent = 'Select a weight.';
-        errorMessage.style.display = 'block';
+        if (errorMessage) {
+          errorMessage.textContent = 'Select a weight.';
+          errorMessage.style.display = 'block';
+        }
         return;
       }
-
-      errorMessage.style.display = 'none';
+      if (errorMessage) errorMessage.style.display = 'none';
       const existing = cart.find(i => i.id === productId && i.weightPerBag === selectedWeight);
 
       if (!existing) {
@@ -425,7 +572,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (existing) {
         existing.bags--;
         if (existing.bags <= 0) {
-          cart = cart.filter(i => i.id !== productId || i.weightPerBag !== weight);
+          cart = cart.filter(i => !(i.id === productId && i.weightPerBag === weight));
         }
         updateCartUI(card, product, weight);
         toggleCheckout();
@@ -435,151 +582,55 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  checkoutBtn.addEventListener('click', () => {
+  checkoutBtn?.addEventListener('click', () => {
     if (cart.length === 0) return;
     updateDashboard();
     checkoutBtn.style.display = 'none';
   });
 
-  modifyBtn.addEventListener('click', () => {
+  modifyBtn?.addEventListener('click', () => {
     // Clear cart and sessionStorage
     cart = [];
     sessionStorage.removeItem('cart');
     showToast('Cart cleared', 'success');
+
     // Update UI
-    dashboardOverlay.classList.remove('active');
+    dashboardOverlay?.classList.remove('active');
     setTimeout(() => {
-      dashboardOverlay.classList.add('hidden');
+      dashboardOverlay?.classList.add('hidden');
       toggleCheckout();
       updateDashboard();
       // Update all product cards to reflect cleared cart
       document.querySelectorAll('.product-card').forEach(card => {
-        const productId = card.dataset.id;
+        const productId = card.getAttribute('data-id');
         const product = products.find(p => p.id === productId);
-        if (product && !product.status !== 'Active') {
+        if (product && product.status === 'Active') {
           const quantitySelect = card.querySelector('.quantity-select');
           const selectedWeight = parseInt(quantitySelect?.value);
-          if (selectedWeight) {
-            updateCartUI(card, product, selectedWeight);
-          }
+          if (selectedWeight) updateCartUI(card, product, selectedWeight);
         }
       });
     }, 500);
   });
 
-  closeOverlayBtn.addEventListener('click', () => {
-    dashboardOverlay.classList.remove('active');
+  closeOverlayBtn?.addEventListener('click', () => {
+    dashboardOverlay?.classList.remove('active');
     setTimeout(() => {
-      dashboardOverlay.classList.add('hidden');
+      dashboardOverlay?.classList.add('hidden');
       toggleCheckout();
     }, 500);
   });
 
-  finalCheckoutBtn.addEventListener('click', () => {
+  finalCheckoutBtn?.addEventListener('click', () => {
     sessionStorage.setItem('cart', JSON.stringify(cart));
     window.location.href = 'orders.html';
   });
 
-async function fetchProducts() {
-  showSkeletons(MIN_SKELETON_COUNT);
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => {
-    controller.abort();
-    showToast('API response is too slow', 'error');
-    showErrorMessage('API took too long to respond. Please try again.');
-  }, API_TIMEOUT);
-
-  try {
-    const res = await fetch(
-      'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec',
-      { signal: controller.signal }
-    );
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      throw new Error(`HTTP error! Status: ${res.status}`);
-    }
-
-    const data = await res.json();
-
-    // Validate data
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('No valid product data received');
-    }
-
-    // Map and sanitize data
-    products = data.map(row => ({
-      id: String(row.ID || ''), // Ensure string
-      brand: String(row.Brand || 'Unknown'),
-      name: String(row.Name || 'N/A'),
-      type: String(row.Type || 'N/A'),
-      quantities: String(row.Quantity || '')
-        .split(',')
-        .map(q => parseInt(q.trim()))
-        .filter(q => !isNaN(q) && q > 0),
-      pricePerKg: parseFloat(row.PricePerKg) || 0,
-      status: String(row.Status || 'Inactive').trim()
-    }));
-
-    // Log data for debugging
-    console.log('Processed products:', products);
-
-    // Save to sessionStorage
-    try {
-      const productsString = JSON.stringify(products);
-      const dataSize = new Blob([productsString]).size;
-      console.log('Data size to save:', dataSize, 'bytes');
-      if (dataSize > 5 * 1024 * 1024) { // 5 MB limit
-        throw new Error('Data too large for sessionStorage');
-      }
-      sessionStorage.setItem('products', productsString);
-      console.log('Products saved to sessionStorage');
-      showToast('Products saved to session storage', 'success');
-
-      // Verify storage
-      const storedProducts = JSON.parse(sessionStorage.getItem('products'));
-      console.log('Retrieved from sessionStorage:', storedProducts);
-    } catch (error) {
-      console.error('Error saving to sessionStorage:', error);
-      showToast(`Failed to save products: ${error.message}`, 'error');
-    }
-
-    filteredProducts = [...products];
-    console.log('Products loaded:', products);
-
-    if (products.length === 0) {
-      showErrorMessage('No products available at the moment.');
-      return;
-    }
-
-    populateTypeFilter();
-    removeSkeletons();
-    displayAllProducts();
-    updateFilteredCount();
-    toggleCheckout();
-  } catch (err) {
-    clearTimeout(timeoutId);
-    console.error('Error loading products:', err);
-    showToast(`Failed to load products: ${err.message}`, 'error');
-    showErrorMessage(`Failed to load products: ${err.message}`);
-  }
-}
-
-  function toggleActionVisible() {
-    const actionDivs = document.querySelectorAll('.actions');
-    actionDivs.forEach(div => {
-      const hasDecrease = div.querySelector('.decrease') !== null;
-      const hasIncrease = div.querySelector('.increase') !== null;
-      div.classList.toggle('action-visible', hasDecrease && hasIncrease);
-    });
-
-    const dashboard = document.getElementById('dashboard-overlay');
-    const anyVisible = document.querySelector('.action-visible');
-    if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
-  }
-
-  function initScrollFadeIn() {
-    const elementsToAnimate = document.querySelectorAll('.fade-in-on-scroll');
+  // ------------------------------
+  // Fade-in on scroll (only for newly added)
+  // ------------------------------
+  function initScrollFadeInForNew() {
+    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.__observed)');
     const observer = new IntersectionObserver(
       (entries, obs) => {
         entries.forEach(entry => {
@@ -589,27 +640,151 @@ async function fetchProducts() {
           }
         });
       },
-      {
-        threshold: 0.1,
-        rootMargin: '0px 0px -10% 0px'
-      }
+      { threshold: 0.1, rootMargin: '0px 0px -10% 0px' }
     );
-    elementsToAnimate.forEach(el => observer.observe(el));
+    elements.forEach(el => {
+      el.classList.add('__observed');
+      observer.observe(el);
+    });
   }
 
-  createSearchFilter();
-  fetchProducts();
+  // ------------------------------
+  // Data Fetch with Timeout + Cache
+  // ------------------------------
+  async function fetchWithTimeout(url, options = {}, timeout = API_TIMEOUT) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
+      clearTimeout(id);
+      return res;
+    } catch (e) {
+      clearTimeout(id);
+      throw e;
+    }
+  }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  async function loadProductsFromCache() {
+    // Try sessionStorage first
+    try {
+      const cached = sessionStorage.getItem(STORAGE_KEY);
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    // Then IndexedDB
+    try {
+      const idbData = await idbGet(STORAGE_KEY);
+      if (idbData) return idbData;
+    } catch {}
+    return null;
+  }
+
+  async function saveProductsToCache(list) {
+    try {
+      const s = JSON.stringify(list);
+      const size = new Blob([s]).size;
+      if (size <= 5 * 1024 * 1024) {
+        sessionStorage.setItem(STORAGE_KEY, s);
+      } else {
+        await idbSet(STORAGE_KEY, list);
+      }
+    } catch (err) {
+      console.warn('Cache save failed:', err);
+    }
+  }
+
+  async function fetchProducts() {
+    showSkeletons(MIN_SKELETON_COUNT);
+
+    // 1) Try cache first to get instant UI
+    const cached = await loadProductsFromCache();
+    if (cached && Array.isArray(cached) && cached.length) {
+      products = normalizeProducts(cached);
+      filteredProducts = [...products];
+      createSearchFilter();
+      populateTypeFilter();
+      removeSkeletons();
+      resetRender();
+      renderNextChunk();
+      updateFilteredCount();
+      toggleCheckout();
+    }
+
+    // 2) Always attempt a fresh fetch to ensure data is correct/new
+    try {
+      const res = await fetchWithTimeout(API_URL);
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      const data = await res.json();
+
+      if (!Array.isArray(data) || data.length === 0) {
+        if (!cached) showErrorMessage('No products available at the moment.');
+        return;
+      }
+
+      const normalized = normalizeProducts(data);
+      products = normalized;
+      filteredProducts = [...products];
+
+      // Save cache
+      await saveProductsToCache(data);
+
+      // If UI not yet shown (no cache), clear skeletons and render
+      removeSkeletons();
+      createSearchFilter();
+      populateTypeFilter();
+      resetRender();
+      renderNextChunk();
+      updateFilteredCount();
+      toggleCheckout();
+    } catch (err) {
+      if (!cached) {
+        removeSkeletons();
+        showToast('API response is too slow or failed', 'error');
+        showErrorMessage(`Failed to load products: ${err.message}`);
+      } else {
+        // We had cache, so fail silently but log
+        console.error('Fresh fetch failed, using cache:', err);
+      }
+    }
+  }
+
+  // ------------------------------
+  // Init
+  // ------------------------------
+  function init() {
+    createSearchFilter();
+    fetchProducts();
+    // Load more on scroll
+    window.addEventListener('scroll', onScrollLoadMore, { passive: true });
+
+    // Mutation observer to keep actions visibility & fade-in consistent
+    function toggleActionVisible() {
+      const actionDivs = document.querySelectorAll('.actions');
+      actionDivs.forEach(div => {
+        const hasDecrease = !!div.querySelector('.decrease');
+        const hasIncrease = !!div.querySelector('.increase');
+        div.classList.toggle('action-visible', hasDecrease && hasIncrease);
+      });
+
+      const dashboard = document.getElementById('dashboard-overlay');
+      const anyVisible = document.querySelector('.action-visible');
+      if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
+    }
+
     toggleActionVisible();
-    initScrollFadeIn();
-  });
+    initScrollFadeInForNew();
 
-  const observer = new MutationObserver(() => {
-    toggleActionVisible();
-    initScrollFadeIn();
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
+    const observer = new MutationObserver(() => {
+      toggleActionVisible();
+      initScrollFadeInForNew();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('beforeunload', () => observer.disconnect());
+  }
 
-  window.addEventListener('beforeunload', () => observer.disconnect());
-});
+  // Ensure single DOMContentLoaded registration; run immediately if DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+})();
