@@ -1,11 +1,9 @@
-// ==============================
-// Optimized Products + Cart App
-// ==============================
+import API_URL_LINK from '../ulity/congfig.js';
 (() => {
   // ------------------------------
   // Config
   // ------------------------------
-  const API_URL = 'https://rice-cart-ten.vercel.app/api/products';
+  const API_URL =API_URL_LINK;
   const API_TIMEOUT = 5000;                 // ms
   const LATENCY_SLOW_FETCH_MS = 9000;       // ms
   const PING_SLOW_MS = 4000;                // ms (for checkApiLatency)
