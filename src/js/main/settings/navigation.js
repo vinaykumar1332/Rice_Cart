@@ -1,3 +1,4 @@
+
 function test(){
     var tabsNewAnim = jQuery('#navbarSupportedContent');
     var selectorNewAnim = jQuery('#navbarSupportedContent').find('li').length;
