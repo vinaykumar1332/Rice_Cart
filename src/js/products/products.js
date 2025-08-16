@@ -1,9 +1,6 @@
-import API_URL_LINK from '../ulity/congfig.js';
 (() => {
-  // ------------------------------
-  // Config
-  // ------------------------------
-  const API_URL =API_URL_LINK;
+  // Use the Vercel proxy URL instead of the Google Apps Script URL
+  const API_URL = 'https://rice-cart-ten.vercel.app/api/proxy';
   const API_TIMEOUT = 5000;                 // ms
   const LATENCY_SLOW_FETCH_MS = 9000;       // ms
   const PING_SLOW_MS = 4000;                // ms (for checkApiLatency)
@@ -70,12 +67,15 @@ import API_URL_LINK from '../ulity/congfig.js';
   async function checkApiLatency() {
     try {
       const start = performance.now();
-      await fetch(API_URL, { mode: 'no-cors', cache: 'no-store' });
+      // Use POST for proxy compatibility, send an empty body
+      await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+        cache: 'no-store'
+      });
       const latency = performance.now() - start;
-      if (latency > PING_SLOW_MS) {
-        return false;
-      }
-      return true;
+      return latency <= PING_SLOW_MS;
     } catch {
       showToast('Network error: Unable to reach server');
       return false;
@@ -95,14 +95,21 @@ import API_URL_LINK from '../ulity/congfig.js';
   // Safe fetch wrapper with latency toast
   // ------------------------------
   const originalFetch = window.fetch.bind(window);
-  window.fetch = async function (...args) {
+  window.fetch = async function (url, options = {}) {
     if (!checkNetworkStatus()) {
       showToast('No network connection');
       return Promise.reject(new Error('No network connection'));
     }
     const start = performance.now();
     try {
-      const res = await originalFetch(...args);
+      // Ensure POST for proxy and include headers
+      const fetchOptions = {
+        ...options,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+        body: options.body || JSON.stringify({}),
+      };
+      const res = await originalFetch(url, fetchOptions);
       const elapsed = performance.now() - start;
       if (elapsed > LATENCY_SLOW_FETCH_MS) showToast('Slow network detected');
       return res;
@@ -237,7 +244,7 @@ import API_URL_LINK from '../ulity/congfig.js';
         <button id="retry-btn" class="retry-btn">Retry</button>
       </p>
     `;
-    document.getElementById('retry-btn')?.addEventListener('click', hardRefresh);
+    document.getElementById('retry-btn')?.addEventListener('click hull', hardRefresh);
   }
 
   function hardRefresh() {
@@ -350,7 +357,6 @@ import API_URL_LINK from '../ulity/congfig.js';
   function populateTypeFilter() {
     let typeFilter = document.getElementById('type-filter');
     if (!typeFilter) return;
-    // Clear, then populate
     typeFilter.innerHTML = `
       <option value="">Select Type</option>
       <option value="">All</option>
@@ -388,7 +394,6 @@ import API_URL_LINK from '../ulity/congfig.js';
   }
 
   function onScrollLoadMore() {
-    // Load next chunk when nearing bottom
     const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 600;
     if (nearBottom) renderNextChunk();
   }
@@ -416,7 +421,6 @@ import API_URL_LINK from '../ulity/congfig.js';
   const debouncedFilter = debounce(runFilter, 250);
 
   function createSearchFilter() {
-    // If already added, skip
     if (document.getElementById('search-filter-container')) return;
 
     const searchFilterContainer = document.createElement('div');
@@ -587,18 +591,15 @@ import API_URL_LINK from '../ulity/congfig.js';
   });
 
   modifyBtn?.addEventListener('click', () => {
-    // Clear cart and sessionStorage
     cart = [];
     sessionStorage.removeItem('cart');
     showToast('Cart cleared', 'success');
 
-    // Update UI
     dashboardOverlay?.classList.remove('active');
     setTimeout(() => {
       dashboardOverlay?.classList.add('hidden');
       toggleCheckout();
       updateDashboard();
-      // Update all product cards to reflect cleared cart
       document.querySelectorAll('.product-card').forEach(card => {
         const productId = card.getAttribute('data-id');
         const product = products.find(p => p.id === productId);
@@ -653,7 +654,16 @@ import API_URL_LINK from '../ulity/congfig.js';
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
     try {
-      const res = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
+      // Ensure POST for proxy compatibility
+      const fetchOptions = {
+        ...options,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...options.headers },
+        body: options.body || JSON.stringify({}),
+        signal: controller.signal,
+        cache: 'no-store'
+      };
+      const res = await fetch(url, fetchOptions);
       clearTimeout(id);
       return res;
     } catch (e) {
@@ -663,12 +673,10 @@ import API_URL_LINK from '../ulity/congfig.js';
   }
 
   async function loadProductsFromCache() {
-    // Try sessionStorage first
     try {
       const cached = sessionStorage.getItem(STORAGE_KEY);
       if (cached) return JSON.parse(cached);
     } catch {}
-    // Then IndexedDB
     try {
       const idbData = await idbGet(STORAGE_KEY);
       if (idbData) return idbData;
@@ -693,7 +701,6 @@ import API_URL_LINK from '../ulity/congfig.js';
   async function fetchProducts() {
     showSkeletons(MIN_SKELETON_COUNT);
 
-    // 1) Try cache first to get instant UI
     const cached = await loadProductsFromCache();
     if (cached && Array.isArray(cached) && cached.length) {
       products = normalizeProducts(cached);
@@ -707,7 +714,6 @@ import API_URL_LINK from '../ulity/congfig.js';
       toggleCheckout();
     }
 
-    // 2) Always attempt a fresh fetch to ensure data is correct/new
     try {
       const res = await fetchWithTimeout(API_URL);
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
@@ -722,10 +728,8 @@ import API_URL_LINK from '../ulity/congfig.js';
       products = normalized;
       filteredProducts = [...products];
 
-      // Save cache
       await saveProductsToCache(data);
 
-      // If UI not yet shown (no cache), clear skeletons and render
       removeSkeletons();
       createSearchFilter();
       populateTypeFilter();
@@ -739,7 +743,6 @@ import API_URL_LINK from '../ulity/congfig.js';
         showToast('API response is too slow or failed', 'error');
         showErrorMessage(`Failed to load products: ${err.message}`);
       } else {
-        // We had cache, so fail silently but log
         console.error('Fresh fetch failed, using cache:', err);
       }
     }
@@ -751,10 +754,8 @@ import API_URL_LINK from '../ulity/congfig.js';
   function init() {
     createSearchFilter();
     fetchProducts();
-    // Load more on scroll
     window.addEventListener('scroll', onScrollLoadMore, { passive: true });
 
-    // Mutation observer to keep actions visibility & fade-in consistent
     function toggleActionVisible() {
       const actionDivs = document.querySelectorAll('.actions');
       actionDivs.forEach(div => {
@@ -779,7 +780,6 @@ import API_URL_LINK from '../ulity/congfig.js';
     window.addEventListener('beforeunload', () => observer.disconnect());
   }
 
-  // Ensure single DOMContentLoaded registration; run immediately if DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
