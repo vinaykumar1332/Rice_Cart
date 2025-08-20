@@ -1,6 +1,6 @@
 (() => {
   // Use the Vercel proxy URL instead of the Google Apps Script URL
-  const API_URL = 'https://rice-cart-ten.vercel.app/api/proxy';
+  const API_URL = "https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec";
   const API_TIMEOUT = 5000;                 // ms
   const LATENCY_SLOW_FETCH_MS = 9000;       // ms
   const PING_SLOW_MS = 4000;                // ms (for checkApiLatency)
