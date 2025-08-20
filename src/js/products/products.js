@@ -1,62 +1,39 @@
-(() => {
-  // Use the Vercel proxy URL instead of the Google Apps Script URL
-  const API_URL = "https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec";
-  const API_TIMEOUT = 5000;                 // ms
-  const LATENCY_SLOW_FETCH_MS = 9000;       // ms
-  const PING_SLOW_MS = 4000;                // ms (for checkApiLatency)
-  const MONITOR_INTERVAL_MS = 50000;        // ms
-  const MIN_SKELETON_COUNT = 10;
-  const CHUNK_SIZE = 40;                    // how many cards to render at once (virtualized rendering)
-  const STORAGE_KEY = 'products:v1';        // bump version if product shape changes
-  const INDEXED_DB = { name: 'productsDB', store: 'productsStore', version: 1 };
+document.addEventListener('DOMContentLoaded', () => {
+  const toastContainer = document.createElement('div');
+  Object.assign(toastContainer.style, {
+    position: 'fixed',
+    top: '40%',
+    right: '20px',
+    zIndex: '1000'
+  });
+  document.body.appendChild(toastContainer);
 
-  // ------------------------------
-  // Utility: Debounce
-  // ------------------------------
-  function debounce(fn, wait = 250) {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), wait);
-    };
-  }
-
-  // ------------------------------
-  // Toasts
-  // ------------------------------
-  const toastContainer = (() => {
-    const c = document.createElement('div');
-    c.style.position = 'fixed';
-    c.style.top = '40%';
-    c.style.right = '20px';
-    c.style.zIndex = '1000';
-    document.body.appendChild(c);
-    return c;
-  })();
-
-  function showToast(message, type = 'error', duration = 3000) {
+  function showToast(message, type = 'error') {
     const toast = document.createElement('div');
-    toast.style.padding = '12px 20px';
-    toast.style.marginBottom = '40%';
-    toast.style.borderRadius = '4px';
-    toast.style.color = '#fff';
-    toast.style.backgroundColor = type === 'error' ? '#dc3545' : '#28a745';
-    toast.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    toast.style.opacity = '0';
-    toast.style.transition = 'opacity 0.3s ease-in-out';
+    Object.assign(toast.style, {
+      padding: '12px 20px',
+      marginBottom: '40%',
+      borderRadius: '4px',
+      color: '#fff',
+      backgroundColor: type === 'error' ? '#dc3545' : '#28a745',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+      opacity: '0',
+      transition: 'opacity 0.3s ease-in-out'
+    });
     toast.textContent = message;
     toastContainer.appendChild(toast);
-    requestAnimationFrame(() => (toast.style.opacity = '1'));
+
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+    });
+
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
-    }, duration);
+    }, 3000);
   }
 
-  // ------------------------------
-  // Network Monitoring
-  // ------------------------------
-  function checkNetworkStatus() {
+  async function checkNetworkStatus() {
     if (!navigator.onLine) {
       showToast('No internet connection');
       return false;
@@ -64,19 +41,21 @@
     return true;
   }
 
-  async function checkApiLatency() {
+  async function checkApiLatency(apiUrl) {
     try {
-      const start = performance.now();
-      // Use POST for proxy compatibility, send an empty body
-      await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-        cache: 'no-store'
+      const startTime = performance.now();
+      const response = await fetch(apiUrl, {
+        mode: 'no-cors',
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4000)
       });
-      const latency = performance.now() - start;
-      return latency <= PING_SLOW_MS;
-    } catch {
+      const latency = performance.now() - startTime;
+      if (latency > 4000) {
+        showToast('API response too slow');
+        return false;
+      }
+      return true;
+    } catch (error) {
       showToast('Network error: Unable to reach server');
       return false;
     }
@@ -86,42 +65,43 @@
   window.addEventListener('offline', () => showToast('Lost internet connection'));
 
   async function monitorNetwork() {
-    if (checkNetworkStatus()) await checkApiLatency();
+    if (await checkNetworkStatus()) {
+      await checkApiLatency('https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec');
+    }
   }
-  monitorNetwork();
-  setInterval(monitorNetwork, MONITOR_INTERVAL_MS);
 
-  // ------------------------------
-  // Safe fetch wrapper with latency toast
-  // ------------------------------
-  const originalFetch = window.fetch.bind(window);
-  window.fetch = async function (url, options = {}) {
-    if (!checkNetworkStatus()) {
+  // Debounced network monitoring
+  let lastNetworkCheck = 0;
+  function debouncedMonitorNetwork() {
+    const now = Date.now();
+    if (now - lastNetworkCheck > 50000) {
+      lastNetworkCheck = now;
+      monitorNetwork();
+    }
+  }
+
+  setInterval(debouncedMonitorNetwork, 10000);
+
+  const originalFetch = window.fetch;
+  window.fetch = async function (...args) {
+    if (!await checkNetworkStatus()) {
       showToast('No network connection');
       return Promise.reject(new Error('No network connection'));
     }
-    const start = performance.now();
+    const startTime = performance.now();
     try {
-      // Ensure POST for proxy and include headers
-      const fetchOptions = {
-        ...options,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...options.headers },
-        body: options.body || JSON.stringify({}),
-      };
-      const res = await originalFetch(url, fetchOptions);
-      const elapsed = performance.now() - start;
-      if (elapsed > LATENCY_SLOW_FETCH_MS) showToast('Slow network detected');
-      return res;
-    } catch (err) {
+      const response = await originalFetch(...args);
+      if (performance.now() - startTime > 9000) {
+        showToast('API call too slow');
+        return Promise.reject(new Error('API call too slow'));
+      }
+      return response;
+    } catch (error) {
       showToast('API call failed');
-      throw err;
+      throw error;
     }
   };
 
-  // ------------------------------
-  // DOM Elements
-  // ------------------------------
   const productsContainer = document.getElementById('productsContainer');
   const checkoutBtn = document.getElementById('go-to-dashboard');
   const dashboardOverlay = document.getElementById('dashboard-overlay');
@@ -130,96 +110,81 @@
   const modifyBtn = document.getElementById('modify-cart');
   const closeOverlayBtn = document.getElementById('close-overlay');
 
-  if (!productsContainer) {
-    console.error('Missing #productsContainer in DOM');
-  }
-
-  // ------------------------------
-  // State
-  // ------------------------------
   let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
   let products = [];
   let filteredProducts = [];
   let searchTerm = '';
   let selectedType = '';
-  let renderIndex = 0; // for chunked rendering
+  const API_TIMEOUT = 5000;
+  const MIN_SKELETON_COUNT = 10;
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec';
 
-  // Pre-scan/normalize helper: add lowercase search fields once for faster filtering
-  function normalizeProducts(list) {
-    return list.map(row => {
-      const id = String(row.ID || row.id || '');
-      const brand = String(row.Brand || row.brand || 'Unknown');
-      const name = String(row.Name || row.name || 'N/A');
-      const type = String(row.Type || row.type || 'N/A');
-      const quantities = String(row.Quantity || row.quantities || '')
-        .toString()
-        .split(',')
-        .map(q => parseInt(String(q).trim()))
-        .filter(q => !isNaN(q) && q > 0);
-      const pricePerKg = parseFloat(row.PricePerKg ?? row.pricePerKg) || 0;
-      const status = String(row.Status || row.status || 'Inactive').trim();
+  function createSearchFilter() {
+    const searchFilterContainer = document.createElement('div');
+    searchFilterContainer.id = 'search-filter-container';
+    searchFilterContainer.innerHTML = `
+      <input id="search-input" type="text" placeholder="Search by brand name..." />
+      <select id="type-filter">
+        <option value="">All Types</option>
+      </select>
+    `;
+    productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
 
-      return {
-        id,
-        brand,
-        name,
-        type,
-        quantities,
-        pricePerKg,
-        status,
-        _s_brand: brand.toLowerCase(),
-        _s_name: name.toLowerCase(),
-        _s_type: type.toLowerCase(),
-      };
+    const countContainer = document.createElement('div');
+    countContainer.id = 'count-container';
+    countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
+    productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
+
+    const searchInput = document.getElementById('search-input');
+    const typeFilter = document.getElementById('type-filter');
+
+    let debounceTimeout;
+    searchInput?.addEventListener('input', () => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+        searchTerm = searchInput.value.trim().toLowerCase();
+        filterProducts();
+      }, 300);
+    });
+
+    typeFilter?.addEventListener('change', () => {
+      selectedType = typeFilter.value;
+      filterProducts();
     });
   }
 
-  // ------------------------------
-  // IndexedDB Fallback (for large datasets)
-  // ------------------------------
-  function idbOpen() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open(INDEXED_DB.name, INDEXED_DB.version);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains(INDEXED_DB.store)) {
-          db.createObjectStore(INDEXED_DB.store);
-        }
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-  async function idbSet(key, value) {
-    const db = await idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(INDEXED_DB.store, 'readwrite');
-      tx.objectStore(INDEXED_DB.store).put(value, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-  async function idbGet(key) {
-    const db = await idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(INDEXED_DB.store, 'readonly');
-      const req = tx.objectStore(INDEXED_DB.store).get(key);
-      req.onsuccess = () => resolve(req.result || null);
-      req.onerror = () => reject(req.error);
+  function populateTypeFilter() {
+    const typeFilter = document.getElementById('type-filter');
+    const uniqueTypes = [...new Set(products.map(p => p.type))].sort();
+    uniqueTypes.forEach(type => {
+      const option = document.createElement('option');
+      option.value = type;
+      option.textContent = type;
+      typeFilter?.appendChild(option);
     });
   }
 
-  // ------------------------------
-  // UI Helpers
-  // ------------------------------
+  function filterProducts() {
+    filteredProducts = products.filter(product => {
+      const matchesSearch = searchTerm
+        ? product.name?.toLowerCase().includes(searchTerm) ||
+          product.brand?.toLowerCase().includes(searchTerm) ||
+          product.type?.toLowerCase().includes(searchTerm)
+        : true;
+      const matchesType = selectedType ? product.type === selectedType : true;
+      return matchesSearch && matchesType;
+    });
+
+    updateFilteredCount();
+    displayAllProducts();
+  }
+
   function showSkeletons(count) {
-    productsContainer.innerHTML = '';
-    const frag = document.createDocumentFragment();
-    const N = Math.max(count, MIN_SKELETON_COUNT);
-    for (let i = 0; i < N; i++) {
-      const s = document.createElement('div');
-      s.className = 'skeleton-card';
-      s.innerHTML = `
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < Math.max(count, MIN_SKELETON_COUNT); i++) {
+      const skeleton = document.createElement('div');
+      skeleton.className = 'skeleton-card';
+      skeleton.innerHTML = `
         <div class="skeleton-img"></div>
         <div class="skeleton-info">
           <div class="skeleton-name"></div>
@@ -227,13 +192,14 @@
           <div class="skeleton-actions"></div>
         </div>
       `;
-      frag.appendChild(s);
+      fragment.appendChild(skeleton);
     }
-    productsContainer.appendChild(frag);
+    productsContainer.innerHTML = '';
+    productsContainer.appendChild(fragment);
   }
 
   function removeSkeletons() {
-    document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+    productsContainer.innerHTML = '';
   }
 
   function showErrorMessage(message = 'Something went wrong. Please try again.') {
@@ -244,13 +210,13 @@
         <button id="retry-btn" class="retry-btn">Retry</button>
       </p>
     `;
-    document.getElementById('retry-btn')?.addEventListener('click hull', hardRefresh);
+    document.getElementById('retry-btn')?.addEventListener('click', hardRefresh);
   }
 
   function hardRefresh() {
     cart = [];
     sessionStorage.removeItem('cart');
-    window.location.reload();
+    window.location.reload(true);
   }
 
   function getLocalImage(product) {
@@ -260,38 +226,35 @@
   function updateCartUI(card, product, selectedWeight) {
     const actions = card.querySelector('.actions');
     const item = cart.find(i => i.id === product.id && i.weightPerBag === selectedWeight);
-    if (item) {
-      actions.innerHTML = `
+    actions.innerHTML = item
+      ? `
         <button class="decrease" data-id="${product.id}" data-weight="${selectedWeight}">-</button>
         <span class="qty">${item.bags}</span>
         <button class="increase" data-id="${product.id}" data-weight="${selectedWeight}">+</button>
-      `;
-    } else {
-      actions.innerHTML = `<button class="add-to-cart" data-id="${product.id}" data-weight="${selectedWeight}">Add to Cart</button>`;
-    }
+      `
+      : `<button class="add-to-cart" data-id="${product.id}" data-weight="${selectedWeight}">Add to Cart</button>`;
   }
 
   function createProductCard(product) {
     const card = document.createElement('div');
     card.className = 'product-card fade-in-on-scroll';
-    card.dataset.type = product.type || 'N/A';
-    card.dataset.id = product.id;
+    card.setAttribute('data-type', product.type || 'N/A');
+    card.setAttribute('data-id', product.id);
 
     const isOutOfStock = product.status !== 'Active';
     if (isOutOfStock) card.classList.add('inactive');
 
     const availableWeights = product.quantities || [];
-    let weightOptions = '';
-    if (!isOutOfStock && availableWeights.length > 0) {
-      weightOptions = availableWeights.map(w => `<option value="${w}">${w} kg</option>`).join('');
-    }
+    const weightOptions = !isOutOfStock && availableWeights.length > 0
+      ? availableWeights.map(weight => `<option value="${weight}">${weight} kg</option>`).join('')
+      : '';
 
     card.innerHTML = `
       <div class="product-card-image">
-        <img
-          src="${getLocalImage(product)}"
-          alt="${product.brand || 'Product'}"
-          class="product-img"
+        <img 
+          src="${getLocalImage(product)}" 
+          alt="${product.brand || 'Product'}" 
+          class="product-img" 
           loading="lazy"
           onerror="this.src='./src/assets/images/default.jpg';"
         >
@@ -300,20 +263,17 @@
         <h3 class="product-name">${product.brand || 'Unknown'}</h3>
         <p class="product-type">${product.name || 'N/A'}</p>
         <p class="product-bag-price">${isOutOfStock ? 'Out of Stock' : 'Check price'}</p>
-        ${
-          !isOutOfStock && weightOptions
-            ? `
-              <div class="custom-select-container">
-                <div class="custom">
-                  <select id="quantity-${product.id}" class="quantity-select">
-                    <option value="">Select kgs</option>
-                    ${weightOptions}
-                  </select>
-                </div>
-              </div>
-              <p class="error-message" id="error-${product.id}" style="display:none;color:red;"></p>
-            `
-            : ''
+        ${!isOutOfStock && weightOptions
+          ? `<div class="custom-select-container">
+               <div class="custom">
+                <select id="quantity-${product.id}" class="quantity-select">
+                  <option value="">Select kgs</option>
+                  ${weightOptions}
+                </select>
+               </div>
+             </div>
+             <p class="error-message" id="error-${product.id}" style="display: none; color: red;"></p>`
+          : ''
         }
         <div class="actions">
           ${!isOutOfStock && weightOptions ? `<button class="add-to-cart" data-id="${product.id}">Add to Cart</button>` : ''}
@@ -342,120 +302,21 @@
     return card;
   }
 
-  function updateFilteredCount() {
-    let filteredCount = document.getElementById('filtered-count');
-    if (!filteredCount) {
-      const countContainer = document.createElement('div');
-      countContainer.id = 'count-container';
-      countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
-      productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
-      filteredCount = document.getElementById('filtered-count');
-    }
-    filteredCount.textContent = `${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''}`;
-  }
-
-  function populateTypeFilter() {
-    let typeFilter = document.getElementById('type-filter');
-    if (!typeFilter) return;
-    typeFilter.innerHTML = `
-      <option value="">Select Type</option>
-      <option value="">All</option>
-    `;
-    const uniqueTypes = [...new Set(products.map(p => p.type))].sort();
-    const frag = document.createDocumentFragment();
-    uniqueTypes.forEach(type => {
-      const opt = document.createElement('option');
-      opt.value = type;
-      opt.textContent = type;
-      frag.appendChild(opt);
-    });
-    typeFilter.appendChild(frag);
-  }
-
-  // ------------------------------
-  // Chunked Rendering (Virtualized)
-  // ------------------------------
-  function resetRender() {
-    renderIndex = 0;
-    productsContainer.innerHTML = '';
-  }
-
-  function renderNextChunk() {
-    if (renderIndex >= filteredProducts.length) return;
-    const end = Math.min(renderIndex + CHUNK_SIZE, filteredProducts.length);
-    const frag = document.createDocumentFragment();
-    for (let i = renderIndex; i < end; i++) {
-      const card = createProductCard(filteredProducts[i]);
-      frag.appendChild(card);
-    }
-    productsContainer.appendChild(frag);
-    renderIndex = end;
-    initScrollFadeInForNew();
-  }
-
-  function onScrollLoadMore() {
-    const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 600;
-    if (nearBottom) renderNextChunk();
-  }
-
-  // ------------------------------
-  // Filtering
-  // ------------------------------
-  const runFilter = () => {
-    const q = searchTerm.trim().toLowerCase();
-    filteredProducts = products.filter(p => {
-      const matchesSearch = !q || p._s_name.includes(q) || p._s_brand.includes(q) || p._s_type.includes(q);
-      const matchesType = selectedType ? p.type === selectedType : true;
-      return matchesSearch && matchesType;
-    });
-
-    updateFilteredCount();
-    resetRender();
+  function displayAllProducts() {
+    const fragment = document.createDocumentFragment();
     if (filteredProducts.length === 0 && products.length > 0) {
       productsContainer.innerHTML = '<p class="Error"><i class="fa-regular fa-face-sad-tear"></i>No products found.</p>';
       return;
     }
-    renderNextChunk();
-  };
-
-  const debouncedFilter = debounce(runFilter, 250);
-
-  function createSearchFilter() {
-    if (document.getElementById('search-filter-container')) return;
-
-    const searchFilterContainer = document.createElement('div');
-    searchFilterContainer.id = 'search-filter-container';
-    searchFilterContainer.innerHTML = `
-      <input id="search-input" type="text" placeholder="Search by brand, product, or type..." />
-      <select id="type-filter">
-        <option value="">Select Type</option>
-        <option value="">All</option>
-      </select>
-    `;
-    productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
-
-    const countContainer = document.createElement('div');
-    countContainer.id = 'count-container';
-    countContainer.innerHTML = `<p id="filtered-count">0 results</p>`;
-    productsContainer?.parentNode?.insertBefore(countContainer, productsContainer);
-
-    const searchInput = document.getElementById('search-input');
-    const typeFilter = document.getElementById('type-filter');
-
-    searchInput?.addEventListener('input', () => {
-      searchTerm = searchInput.value;
-      debouncedFilter();
-    });
-
-    typeFilter?.addEventListener('change', () => {
-      selectedType = typeFilter.value;
-      debouncedFilter();
-    });
+    filteredProducts.forEach(product => fragment.appendChild(createProductCard(product)));
+    productsContainer.innerHTML = '';
+    productsContainer.appendChild(fragment);
   }
 
-  // ------------------------------
-  // Dashboard / Cart
-  // ------------------------------
+  function updateFilteredCount() {
+    document.getElementById('filtered-count').textContent = `${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''}`;
+  }
+
   function updateDashboard() {
     if (cart.length === 0) {
       dashboardOverlay.classList.add('hidden');
@@ -463,30 +324,30 @@
     }
 
     dashboardOverlay.classList.remove('hidden');
-    dashboardContent.innerHTML = `
-      <table class="cart-table">
-        <thead>
-          <tr>
-            <th>Brand</th>
-            <th>Weight/Bag</th>
-            <th>Bags</th>
-            <th>₹/kg</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot class="tfoot">
-          <tr>
-            <td colspan="4"><strong>Total</strong></td>
-            <td id="total-price"><strong>₹0</strong></td>
-          </tr>
-        </tfoot>
-      </table>
+    const fragment = document.createDocumentFragment();
+    const table = document.createElement('table');
+    table.className = 'cart-table';
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Weight/Bag</th>
+          <th>Bags</th>
+          <th>₹/kg</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot class="tfoot">
+        <tr>
+          <td colspan="4"><strong>Total</strong></td>
+          <td id="total-price"><strong>₹0</strong></td>
+        </tr>
+      </tfoot>
     `;
 
-    const tbody = dashboardContent.querySelector('tbody');
+    const tbody = table.querySelector('tbody');
     let total = 0;
-    const frag = document.createDocumentFragment();
 
     cart.forEach(item => {
       const subtotal = item.basePrice * item.weightPerBag * item.bags;
@@ -499,23 +360,22 @@
         <td>₹${item.basePrice}</td>
         <td>₹${subtotal}</td>
       `;
-      frag.appendChild(row);
+      tbody.appendChild(row);
     });
 
-    tbody.appendChild(frag);
-    dashboardContent.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
+    table.querySelector('#total-price').innerHTML = `<strong>₹${total}</strong>`;
+    fragment.appendChild(table);
+    dashboardContent.innerHTML = '';
+    dashboardContent.appendChild(fragment);
   }
 
   function toggleCheckout() {
-    if (!checkoutBtn) return;
     checkoutBtn.style.display = cart.length > 0 ? 'block' : 'none';
     checkoutBtn.textContent = `Checkout (${cart.length})`;
   }
 
-  // Click handling on product cards
   productsContainer?.addEventListener('click', (e) => {
     const target = e.target;
-    if (!(target instanceof HTMLElement)) return;
     const productId = target.dataset?.id;
     if (!productId) return;
 
@@ -523,19 +383,18 @@
     if (!product) return;
 
     const card = target.closest('.product-card');
-    const quantitySelect = card?.querySelector('.quantity-select');
-    const errorMessage = card?.querySelector('.error-message');
+    const quantitySelect = card.querySelector('.quantity-select');
+    const errorMessage = card.querySelector('.error-message');
     const selectedWeight = parseInt(quantitySelect?.value);
 
     if (target.classList.contains('add-to-cart')) {
       if (!selectedWeight) {
-        if (errorMessage) {
-          errorMessage.textContent = 'Select a weight.';
-          errorMessage.style.display = 'block';
-        }
+        errorMessage.textContent = 'Select a weight.';
+        errorMessage.style.display = 'block';
         return;
       }
-      if (errorMessage) errorMessage.style.display = 'none';
+
+      errorMessage.style.display = 'none';
       const existing = cart.find(i => i.id === productId && i.weightPerBag === selectedWeight);
 
       if (!existing) {
@@ -556,25 +415,13 @@
       sessionStorage?.setItem('cart', JSON.stringify(cart));
     }
 
-    if (target.classList.contains('increase')) {
+    if (target.classList.contains('increase') || target.classList.contains('decrease')) {
       const weight = parseInt(target.dataset.weight);
       const existing = cart.find(i => i.id === productId && i.weightPerBag === weight);
       if (existing) {
-        existing.bags++;
-        updateCartUI(card, product, weight);
-        toggleCheckout();
-        updateDashboard();
-        sessionStorage?.setItem('cart', JSON.stringify(cart));
-      }
-    }
-
-    if (target.classList.contains('decrease')) {
-      const weight = parseInt(target.dataset.weight);
-      const existing = cart.find(i => i.id === productId && i.weightPerBag === weight);
-      if (existing) {
-        existing.bags--;
+        existing.bags += target.classList.contains('increase') ? 1 : -1;
         if (existing.bags <= 0) {
-          cart = cart.filter(i => !(i.id === productId && i.weightPerBag === weight));
+          cart = cart.filter(i => i.id !== productId || i.weightPerBag !== weight);
         }
         updateCartUI(card, product, weight);
         toggleCheckout();
@@ -584,52 +431,118 @@
     }
   });
 
-  checkoutBtn?.addEventListener('click', () => {
+  checkoutBtn.addEventListener('click', () => {
     if (cart.length === 0) return;
     updateDashboard();
     checkoutBtn.style.display = 'none';
   });
 
-  modifyBtn?.addEventListener('click', () => {
+  modifyBtn.addEventListener('click', () => {
     cart = [];
     sessionStorage.removeItem('cart');
     showToast('Cart cleared', 'success');
-
-    dashboardOverlay?.classList.remove('active');
+    dashboardOverlay.classList.remove('active');
     setTimeout(() => {
-      dashboardOverlay?.classList.add('hidden');
+      dashboardOverlay.classList.add('hidden');
       toggleCheckout();
       updateDashboard();
       document.querySelectorAll('.product-card').forEach(card => {
-        const productId = card.getAttribute('data-id');
+        const productId = card.dataset.id;
         const product = products.find(p => p.id === productId);
         if (product && product.status === 'Active') {
           const quantitySelect = card.querySelector('.quantity-select');
           const selectedWeight = parseInt(quantitySelect?.value);
-          if (selectedWeight) updateCartUI(card, product, selectedWeight);
+          if (selectedWeight) {
+            updateCartUI(card, product, selectedWeight);
+          }
         }
       });
     }, 500);
   });
 
-  closeOverlayBtn?.addEventListener('click', () => {
-    dashboardOverlay?.classList.remove('active');
+  closeOverlayBtn.addEventListener('click', () => {
+    dashboardOverlay.classList.remove('active');
     setTimeout(() => {
-      dashboardOverlay?.classList.add('hidden');
+      dashboardOverlay.classList.add('hidden');
       toggleCheckout();
     }, 500);
   });
 
-  finalCheckoutBtn?.addEventListener('click', () => {
+  finalCheckoutBtn.addEventListener('click', () => {
     sessionStorage.setItem('cart', JSON.stringify(cart));
     window.location.href = 'orders.html';
   });
 
-  // ------------------------------
-  // Fade-in on scroll (only for newly added)
-  // ------------------------------
-  function initScrollFadeInForNew() {
-    const elements = document.querySelectorAll('.fade-in-on-scroll:not(.__observed)');
+  async function fetchProductsWithRetry(retries = 3, delay = 1000) {
+    showSkeletons(MIN_SKELETON_COUNT);
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
+        const res = await fetch(API_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error('No valid product data received');
+        }
+
+        products = data.map(row => ({
+          id: String(row.ID || ''),
+          brand: String(row.Brand || 'Unknown'),
+          name: String(row.Name || 'N/A'),
+          type: String(row.Type || 'N/A'),
+          quantities: String(row.Quantity || '')
+            .split(',')
+            .map(q => parseInt(q.trim()))
+            .filter(q => !isNaN(q) && q > 0),
+          pricePerKg: parseFloat(row.PricePerKg) || 0,
+          status: String(row.Status || 'Inactive').trim()
+        }));
+
+        try {
+          const productsString = JSON.stringify(products);
+          if (new Blob([productsString]).size > 5 * 1024 * 1024) {
+            throw new Error('Data too large for sessionStorage');
+          }
+        } catch (error) {
+          console.error('Error saving to sessionStorage:', error);
+        }
+
+        filteredProducts = [...products];
+        populateTypeFilter();
+        removeSkeletons();
+        displayAllProducts();
+        updateFilteredCount();
+        toggleCheckout();
+        return;
+      } catch (err) {
+        console.error(`Attempt ${attempt} failed:`, err);
+        if (attempt === retries) {
+          showToast(`Failed to load products: ${err.message}`, 'error');
+          showErrorMessage(`Failed to load products: ${err.message}`);
+        } else {
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+  }
+
+  function toggleActionVisible() {
+    const actionDivs = document.querySelectorAll('.actions');
+    actionDivs.forEach(div => {
+      const hasButtons = div.querySelector('.decrease') && div.querySelector('.increase');
+      div.classList.toggle('action-visible', hasButtons);
+    });
+
+    const dashboard = document.getElementById('dashboard-overlay');
+    const anyVisible = document.querySelector('.action-visible');
+    if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
+  }
+
+  function initScrollFadeIn() {
     const observer = new IntersectionObserver(
       (entries, obs) => {
         entries.forEach(entry => {
@@ -641,148 +554,17 @@
       },
       { threshold: 0.1, rootMargin: '0px 0px -10% 0px' }
     );
-    elements.forEach(el => {
-      el.classList.add('__observed');
-      observer.observe(el);
-    });
+    document.querySelectorAll('.fade-in-on-scroll').forEach(el => observer.observe(el));
   }
 
-  // ------------------------------
-  // Data Fetch with Timeout + Cache
-  // ------------------------------
-  async function fetchWithTimeout(url, options = {}, timeout = API_TIMEOUT) {
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-    try {
-      // Ensure POST for proxy compatibility
-      const fetchOptions = {
-        ...options,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...options.headers },
-        body: options.body || JSON.stringify({}),
-        signal: controller.signal,
-        cache: 'no-store'
-      };
-      const res = await fetch(url, fetchOptions);
-      clearTimeout(id);
-      return res;
-    } catch (e) {
-      clearTimeout(id);
-      throw e;
-    }
-  }
+  createSearchFilter();
+  fetchProductsWithRetry();
 
-  async function loadProductsFromCache() {
-    try {
-      const cached = sessionStorage.getItem(STORAGE_KEY);
-      if (cached) return JSON.parse(cached);
-    } catch {}
-    try {
-      const idbData = await idbGet(STORAGE_KEY);
-      if (idbData) return idbData;
-    } catch {}
-    return null;
-  }
-
-  async function saveProductsToCache(list) {
-    try {
-      const s = JSON.stringify(list);
-      const size = new Blob([s]).size;
-      if (size <= 5 * 1024 * 1024) {
-        sessionStorage.setItem(STORAGE_KEY, s);
-      } else {
-        await idbSet(STORAGE_KEY, list);
-      }
-    } catch (err) {
-      console.warn('Cache save failed:', err);
-    }
-  }
-
-  async function fetchProducts() {
-    showSkeletons(MIN_SKELETON_COUNT);
-
-    const cached = await loadProductsFromCache();
-    if (cached && Array.isArray(cached) && cached.length) {
-      products = normalizeProducts(cached);
-      filteredProducts = [...products];
-      createSearchFilter();
-      populateTypeFilter();
-      removeSkeletons();
-      resetRender();
-      renderNextChunk();
-      updateFilteredCount();
-      toggleCheckout();
-    }
-
-    try {
-      const res = await fetchWithTimeout(API_URL);
-      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-      const data = await res.json();
-
-      if (!Array.isArray(data) || data.length === 0) {
-        if (!cached) showErrorMessage('No products available at the moment.');
-        return;
-      }
-
-      const normalized = normalizeProducts(data);
-      products = normalized;
-      filteredProducts = [...products];
-
-      await saveProductsToCache(data);
-
-      removeSkeletons();
-      createSearchFilter();
-      populateTypeFilter();
-      resetRender();
-      renderNextChunk();
-      updateFilteredCount();
-      toggleCheckout();
-    } catch (err) {
-      if (!cached) {
-        removeSkeletons();
-        showToast('API response is too slow or failed', 'error');
-        showErrorMessage(`Failed to load products: ${err.message}`);
-      } else {
-        console.error('Fresh fetch failed, using cache:', err);
-      }
-    }
-  }
-
-  // ------------------------------
-  // Init
-  // ------------------------------
-  function init() {
-    createSearchFilter();
-    fetchProducts();
-    window.addEventListener('scroll', onScrollLoadMore, { passive: true });
-
-    function toggleActionVisible() {
-      const actionDivs = document.querySelectorAll('.actions');
-      actionDivs.forEach(div => {
-        const hasDecrease = !!div.querySelector('.decrease');
-        const hasIncrease = !!div.querySelector('.increase');
-        div.classList.toggle('action-visible', hasDecrease && hasIncrease);
-      });
-
-      const dashboard = document.getElementById('dashboard-overlay');
-      const anyVisible = document.querySelector('.action-visible');
-      if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
-    }
-
+  const observer = new MutationObserver(() => {
     toggleActionVisible();
-    initScrollFadeInForNew();
+    initScrollFadeIn();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 
-    const observer = new MutationObserver(() => {
-      toggleActionVisible();
-      initScrollFadeInForNew();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    window.addEventListener('beforeunload', () => observer.disconnect());
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
-  }
-})();
+  window.addEventListener('beforeunload', () => observer.disconnect());
+});
