@@ -1,11 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const toastContainer = document.createElement('div');
-  Object.assign(toastContainer.style, {
-    position: 'fixed',
-    top: '40%',
-    right: '20px',
-    zIndex: '1000'
-  });
+  Object.assign(toastContainer.style, { position: 'fixed', top: '40%', right: '20px', zIndex: '1000' });
   document.body.appendChild(toastContainer);
 
   function showToast(message, type = 'error') {
@@ -22,11 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     toast.textContent = message;
     toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
-    });
-
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => toast.remove(), 300);
@@ -44,19 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
   async function checkApiLatency(apiUrl) {
     try {
       const startTime = performance.now();
-      const response = await fetch(apiUrl, {
-        mode: 'no-cors',
-        cache: 'no-store',
-        signal: AbortSignal.timeout(4000)
-      });
-      const latency = performance.now() - startTime;
-      if (latency > 4000) {
+      const response = await fetch(apiUrl, { mode: 'no-cors', cache: 'no-store', signal: AbortSignal.timeout(4000) });
+      if ((performance.now() - startTime) > 4000) {
         showToast('API response too slow');
         return false;
       }
       return true;
-    } catch (error) {
-      showToast('Network error: Unable to reach server');
+    } catch {
       return false;
     }
   }
@@ -70,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Debounced network monitoring
   let lastNetworkCheck = 0;
   function debouncedMonitorNetwork() {
     const now = Date.now();
@@ -83,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(debouncedMonitorNetwork, 10000);
 
   const originalFetch = window.fetch;
-  window.fetch = async function (...args) {
+  window.fetch = async (...args) => {
     if (!await checkNetworkStatus()) {
       showToast('No network connection');
       return Promise.reject(new Error('No network connection'));
@@ -91,13 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const startTime = performance.now();
     try {
       const response = await originalFetch(...args);
-      if (performance.now() - startTime > 9000) {
+      if ((performance.now() - startTime) > 9000) {
         showToast('API call too slow');
         return Promise.reject(new Error('API call too slow'));
       }
       return response;
     } catch (error) {
-      showToast('API call failed');
       throw error;
     }
   };
@@ -109,8 +92,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const finalCheckoutBtn = document.getElementById('checkout-final');
   const modifyBtn = document.getElementById('modify-cart');
   const closeOverlayBtn = document.getElementById('close-overlay');
+  const expandIconBtn = document.getElementById('expand-icon');
 
-  let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
+  let cart = JSON.parse(sessionStorage.getItem('cart') || '[]');
   let products = [];
   let filteredProducts = [];
   let searchTerm = '';
@@ -119,14 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const MIN_SKELETON_COUNT = 10;
   const API_URL = 'https://script.google.com/macros/s/AKfycbzWIlg4U6L71j2jIOxt0Jh6EKvUSDbvrKf7F4AtsbLzY5_YZXjCj_nJ-0wMOjkpHY-G/exec';
 
+  const badgeColors = ['#5C4033'];
+
+  function getRandomBadgeColor() {
+    return badgeColors[Math.floor(Math.random() * badgeColors.length)];
+  }
+
   function createSearchFilter() {
     const searchFilterContainer = document.createElement('div');
     searchFilterContainer.id = 'search-filter-container';
     searchFilterContainer.innerHTML = `
-      <input id="search-input" type="text" placeholder="Search by brand name..." />
-      <select id="type-filter">
-        <option value="">All Types</option>
-      </select>
+      <input id="search-input" type="text" placeholder="Search by brand name...">
+      <select id="type-filter"><option value="">All Types</option></select>
     `;
     productsContainer?.parentNode?.insertBefore(searchFilterContainer, productsContainer);
 
@@ -167,14 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function filterProducts() {
     filteredProducts = products.filter(product => {
       const matchesSearch = searchTerm
-        ? product.name?.toLowerCase().includes(searchTerm) ||
-          product.brand?.toLowerCase().includes(searchTerm) ||
-          product.type?.toLowerCase().includes(searchTerm)
+        ? (['name', 'brand', 'type'].some(key => product[key]?.toLowerCase().includes(searchTerm)))
         : true;
-      const matchesType = selectedType ? product.type === selectedType : true;
-      return matchesSearch && matchesType;
+      return matchesSearch && (!selectedType || product.type === selectedType);
     });
-
     updateFilteredCount();
     displayAllProducts();
   }
@@ -245,19 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isOutOfStock) card.classList.add('inactive');
 
     const availableWeights = product.quantities || [];
-    const weightOptions = !isOutOfStock && availableWeights.length > 0
+    const weightOptions = !isOutOfStock && availableWeights.length
       ? availableWeights.map(weight => `<option value="${weight}">${weight} kg</option>`).join('')
       : '';
 
     card.innerHTML = `
       <div class="product-card-image">
-        <img 
-          src="${getLocalImage(product)}" 
-          alt="${product.brand || 'Product'}" 
-          class="product-img" 
-          loading="lazy"
-          onerror="this.src='./src/assets/images/default.jpg';"
-        >
+        <img src="${getLocalImage(product)}" alt="${product.brand || 'Product'}" class="product-img" loading="lazy" onerror="this.src='./src/assets/images/default.jpg';">
       </div>
       <div class="product-info">
         <h3 class="product-name">${product.brand || 'Unknown'}</h3>
@@ -304,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function displayAllProducts() {
     const fragment = document.createDocumentFragment();
-    if (filteredProducts.length === 0 && products.length > 0) {
+    if (filteredProducts.length === 0 && products.length) {
       productsContainer.innerHTML = '<p class="Error"><i class="fa-regular fa-face-sad-tear"></i>No products found.</p>';
       return;
     }
@@ -318,12 +296,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateDashboard() {
-    if (cart.length === 0) {
+    if (!cart.length) {
       dashboardOverlay.classList.add('hidden');
+      dashboardOverlay.classList.remove('active', 'expanded');
+      expandIconBtn.classList.remove('expanded');
+      expandIconBtn.classList.add('collapsed');
+      expandIconBtn.innerHTML = '<i class="fa-solid fa-maximize"></i>';
       return;
     }
 
     dashboardOverlay.classList.remove('hidden');
+    dashboardOverlay.classList.add('active');
     const fragment = document.createDocumentFragment();
     const table = document.createElement('table');
     table.className = 'cart-table';
@@ -370,11 +353,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleCheckout() {
-    checkoutBtn.style.display = cart.length > 0 ? 'block' : 'none';
-    checkoutBtn.textContent = `Checkout (${cart.length})`;
+    if (cart.length) {
+      checkoutBtn.className = 'checkout-btn collapsed';
+      checkoutBtn.style.display = 'block';
+      checkoutBtn.innerHTML = `
+        <i class="fas fa-shopping-cart cart-icon"></i>
+        <span class="checkout-text">Checkout</span>
+        <span class="cart-badge" style="background: ${getRandomBadgeColor()}">${cart.length}</span>
+      `;
+    } else {
+      checkoutBtn.className = 'checkout-btn slide-out';
+      setTimeout(() => {
+        checkoutBtn.style.display = 'none';
+        checkoutBtn.className = 'checkout-btn collapsed';
+      }, 600); // Match animation duration
+    }
   }
 
-  productsContainer?.addEventListener('click', (e) => {
+  let collapseTimeout;
+  checkoutBtn.addEventListener('click', () => {
+    if (!cart.length) return;
+    clearTimeout(collapseTimeout);
+    checkoutBtn.classList.remove('collapsed');
+    checkoutBtn.classList.add('expanded');
+    updateDashboard();
+    collapseTimeout = setTimeout(() => {
+      checkoutBtn.classList.remove('expanded');
+      checkoutBtn.classList.add('collapsed');
+    }, 3000);
+  });
+
+  productsContainer?.addEventListener('click', e => {
     const target = e.target;
     const productId = target.dataset?.id;
     if (!productId) return;
@@ -405,13 +414,13 @@ document.addEventListener('DOMContentLoaded', () => {
           bags: 1,
           basePrice: product.pricePerKg
         });
+        showToast('Item added to cart', 'success');
       } else {
         existing.bags++;
       }
 
       updateCartUI(card, product, selectedWeight);
       toggleCheckout();
-      updateDashboard();
       sessionStorage?.setItem('cart', JSON.stringify(cart));
     }
 
@@ -422,26 +431,23 @@ document.addEventListener('DOMContentLoaded', () => {
         existing.bags += target.classList.contains('increase') ? 1 : -1;
         if (existing.bags <= 0) {
           cart = cart.filter(i => i.id !== productId || i.weightPerBag !== weight);
+          showToast('Item removed from cart', 'success');
         }
         updateCartUI(card, product, weight);
         toggleCheckout();
-        updateDashboard();
         sessionStorage?.setItem('cart', JSON.stringify(cart));
       }
     }
-  });
-
-  checkoutBtn.addEventListener('click', () => {
-    if (cart.length === 0) return;
-    updateDashboard();
-    checkoutBtn.style.display = 'none';
   });
 
   modifyBtn.addEventListener('click', () => {
     cart = [];
     sessionStorage.removeItem('cart');
     showToast('Cart cleared', 'success');
-    dashboardOverlay.classList.remove('active');
+    dashboardOverlay.classList.remove('active', 'expanded');
+    expandIconBtn.classList.remove('expanded');
+    expandIconBtn.classList.add('collapsed');
+    expandIconBtn.innerHTML = '<i class="fa-solid fa-maximize"></i>';
     setTimeout(() => {
       dashboardOverlay.classList.add('hidden');
       toggleCheckout();
@@ -461,11 +467,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   closeOverlayBtn.addEventListener('click', () => {
-    dashboardOverlay.classList.remove('active');
+    dashboardOverlay.classList.remove('active', 'expanded');
+    expandIconBtn.classList.remove('expanded');
+    expandIconBtn.classList.add('collapsed');
+    expandIconBtn.innerHTML = '<i class="fa-solid fa-maximize"></i>';
     setTimeout(() => {
       dashboardOverlay.classList.add('hidden');
       toggleCheckout();
     }, 500);
+  });
+
+  expandIconBtn.addEventListener('click', () => {
+    if (dashboardOverlay.classList.contains('expanded')) {
+      dashboardOverlay.classList.remove('expanded');
+      expandIconBtn.classList.remove('expanded');
+      expandIconBtn.classList.add('collapsed');
+      expandIconBtn.innerHTML = '<i class="fa-solid fa-maximize"></i>';
+    } else {
+      dashboardOverlay.classList.add('expanded');
+      expandIconBtn.classList.remove('collapsed');
+      expandIconBtn.classList.add('expanded');
+      expandIconBtn.innerHTML = '<i class="fa-solid fa-minimize"></i>';
+    }
   });
 
   finalCheckoutBtn.addEventListener('click', () => {
@@ -479,13 +502,13 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
-        const res = await fetch(API_URL, { signal: controller.signal });
+        const res = await fetch(API_URL, { signal: controller.signal, cache: 'no-store', headers: { 'Accept': 'application/json' } });
         clearTimeout(timeoutId);
 
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         const data = await res.json();
 
-        if (!Array.isArray(data) || data.length === 0) {
+        if (!Array.isArray(data) || !data.length) {
           throw new Error('No valid product data received');
         }
 
@@ -494,22 +517,10 @@ document.addEventListener('DOMContentLoaded', () => {
           brand: String(row.Brand || 'Unknown'),
           name: String(row.Name || 'N/A'),
           type: String(row.Type || 'N/A'),
-          quantities: String(row.Quantity || '')
-            .split(',')
-            .map(q => parseInt(q.trim()))
-            .filter(q => !isNaN(q) && q > 0),
+          quantities: String(row.Quantity || '').split(',').map(q => parseInt(q.trim())).filter(q => !isNaN(q) && q > 0),
           pricePerKg: parseFloat(row.PricePerKg) || 0,
           status: String(row.Status || 'Inactive').trim()
         }));
-
-        try {
-          const productsString = JSON.stringify(products);
-          if (new Blob([productsString]).size > 5 * 1024 * 1024) {
-            throw new Error('Data too large for sessionStorage');
-          }
-        } catch (error) {
-          console.error('Error saving to sessionStorage:', error);
-        }
 
         filteredProducts = [...products];
         populateTypeFilter();
@@ -519,7 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCheckout();
         return;
       } catch (err) {
-        console.error(`Attempt ${attempt} failed:`, err);
         if (attempt === retries) {
           showToast(`Failed to load products: ${err.message}`, 'error');
           showErrorMessage(`Failed to load products: ${err.message}`);
@@ -536,10 +546,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const hasButtons = div.querySelector('.decrease') && div.querySelector('.increase');
       div.classList.toggle('action-visible', hasButtons);
     });
-
-    const dashboard = document.getElementById('dashboard-overlay');
-    const anyVisible = document.querySelector('.action-visible');
-    if (dashboard) dashboard.classList.toggle('active', !!anyVisible);
   }
 
   function initScrollFadeIn() {
